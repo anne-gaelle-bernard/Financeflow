@@ -10,21 +10,18 @@ FinanceFlow est une application web développée avec React pour le frontend et 
 
 Pour rendre la gestion financière plus visuelle, FinanceFlow intègre des graphiques interactifs à l’aide de bibliothèques reconnues telles que Chart.js et D3.js.
 
-Fonctionnalités principales
+Fonctionnalités principales :
 
-L’application propose les fonctionnalités suivantes :
+- Avoir la possibilité d’ajouter une nouvelle transaction 
 
-Ajouter de nouvelles transactions
+- Qualifier une transaction (date, lieu, titre, description facultative…) 
 
-Qualifier chaque transaction (date, lieu, titre, description optionnelle)
+- Chaque transaction doit avoir une catégorie et une sous-catégorie associée à cette catégorie
 
-Associer des catégories et sous-catégories à chaque transaction
+ - Afficher la liste des transactions
 
-Afficher la liste complète des transactions
+ - Afficher le solde restant - Trier et filtrer les transactions (par catégorie, sous catégories, date, montant…) 
 
-Visualiser le solde restant
-
-Trier et filtrer les transactions (par catégorie, sous-catégorie, date, montant, etc.)
 
 Design et accessibilité
 
