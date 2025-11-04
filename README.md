@@ -20,7 +20,15 @@ Fonctionnalités principales :
 
  - Afficher la liste des transactions
 
- - Afficher le solde restant - Trier et filtrer les transactions (par catégorie, sous catégories, date, montant…) 
+ - Afficher le solde restant
+ 
+ - Trier et filtrer les transactions (par catégorie, sous catégories, date, montant…)
+
+ - Ajoutez la possibilité de définir des budgets pour chacune des catégories et des sous catégories
+ 
+ - Afficher les limites sur les graphiques
+
+- Permettre de partager une transaction entre plusieurs utilisateurs 
 
 
 Design et accessibilité
