@@ -7,7 +7,6 @@ FinanceFlow est une application complète de gestion des finances personnelles q
 Présentation du projet
 
 FinanceFlow est une application web développée avec React pour le frontend et un backend PHP + MariaDB/SQL.
-Elle vise à offrir une expérience utilisateur fluide, moderne et sans distractions inutiles.
 
 Pour rendre la gestion financière plus visuelle, FinanceFlow intègre des graphiques interactifs à l’aide de bibliothèques reconnues telles que Chart.js et D3.js.
 
