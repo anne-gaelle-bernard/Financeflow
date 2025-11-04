@@ -2,7 +2,7 @@
 
 FinanceFlow
 
-FinanceFlow est une application complète de gestion des finances personnelles qui permet de suivre ses transactions, de visualiser ses dépenses et de gérer ses budgets de manière simple et efficace.
+FinanceFlow est une application complète de gestion des finances personnelles qui permet de suivre ses transactions, de visualiser ses dépenses et de gérer ses budgets.
 
 Présentation du projet
 
