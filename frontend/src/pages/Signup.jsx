@@ -55,4 +55,3 @@ export default function Signup({ onNavigate }) {
     </div>
   )
 }
-}

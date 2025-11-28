@@ -16,7 +16,7 @@ export default function Login({ onNavigate }) {
       }
       const res = await loginUser({ email, password })
       if (res?.success) {
-        onNavigate('transactions')
+        onNavigate('home')
       } else {
         setError(res?.message || 'Connexion échouée')
       }

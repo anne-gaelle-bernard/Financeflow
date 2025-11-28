@@ -44,7 +44,5 @@ export async function loginUser(payload) {
   if (token) setAuthToken(token)
   return data
 }
-  return data
-}
 
 export default api

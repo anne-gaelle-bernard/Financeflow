@@ -118,8 +118,4 @@ export default function Transactions({ onNavigate }) {
       </div>
     </div>
   )
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 7a2e344 (Enforce inscription puis login avant accès; protège /api/transactions avec JWT; redirections frontend)
