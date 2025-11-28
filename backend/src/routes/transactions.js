@@ -51,4 +51,3 @@ router.put(
 router.delete('/:id', ctrl.remove);
 
 module.exports = router;
-module.exports = router;
