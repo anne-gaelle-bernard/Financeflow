@@ -1,9 +1,12 @@
 const express = require('express');
 const { body } = require('express-validator');
 const { validate } = require('../middleware/validate');
+const { auth } = require('../middleware/auth');
 const router = express.Router();
 const ctrl = require('../controllers/transactionsController');
 
+// Toutes les routes transactions nécessitent une authentification
+router.use(auth);
 // Liste filtrable & triable
 router.get('/', ctrl.list);
 
@@ -47,4 +50,5 @@ router.put(
 // Supprimer une transaction
 router.delete('/:id', ctrl.remove);
 
+module.exports = router;
 module.exports = router;

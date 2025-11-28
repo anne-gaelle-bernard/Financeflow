@@ -9,6 +9,11 @@ export default function Transactions({ onNavigate }) {
   const [form, setForm] = useState({ title: '', amount: '', location: '', description: '' })
 
   useEffect(() => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('ff_token') : null
+    if (!token) {
+      onNavigate('login')
+      return
+    }
     let mounted = true
     async function load() {
       try {
@@ -113,4 +118,8 @@ export default function Transactions({ onNavigate }) {
       </div>
     </div>
   )
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 7a2e344 (Enforce inscription puis login avant accès; protège /api/transactions avec JWT; redirections frontend)

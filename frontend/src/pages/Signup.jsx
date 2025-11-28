@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { registerUser } from '../services/api'
+import { registerUser, setAuthToken } from '../services/api'
 
 export default function Signup({ onNavigate }) {
   const [firstName, setFirstName] = useState('')
@@ -27,7 +27,8 @@ export default function Signup({ onNavigate }) {
     try {
       const res = await registerUser({ firstName, lastName, email, password, passwordConfirm })
       if (res?.success) {
-        onNavigate('transactions')
+        setAuthToken(null)
+        onNavigate('login')
       } else {
         setError(res?.message || 'Inscription échouée')
       }
@@ -53,4 +54,5 @@ export default function Signup({ onNavigate }) {
       </form>
     </div>
   )
+}
 }

@@ -1,5 +1,34 @@
 FinanceFlow
 
+Monorepo avec backend (Express + MongoDB via Mongoose) et frontend (Vite + React).
+
+Structure
+
+financeflow/
+│
+├── backend/
+│   ├── src/
+│   │   ├── routes/
+│   │   ├── controllers/
+│   │   ├── models/
+│   │   ├── config/
+│   │   ├── middleware/
+│   │   └── app.js
+│   ├── package.json
+│   └── server.js
+│
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── services/
+│   │   └── App.jsx
+│   ├── package.json
+│   └── vite.config.js
+│
+└── README.md
+
+Voir `backend/README.md` et `frontend/README.md` pour démarrer.
 Présentation du projet
 
 FinanceFlow est une application web développée avec React pour le frontend et un backend Node.js + MongoDB.

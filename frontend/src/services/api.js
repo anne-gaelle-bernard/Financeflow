@@ -34,8 +34,6 @@ export async function createTransaction(payload) {
 export async function registerUser(payload) {
   const res = await api.post('/users/register', payload)
   const data = res.data
-  const token = data?.data?.token
-  if (token) setAuthToken(token)
   return data
 }
 
@@ -44,6 +42,8 @@ export async function loginUser(payload) {
   const data = res.data
   const token = data?.data?.token
   if (token) setAuthToken(token)
+  return data
+}
   return data
 }
 
