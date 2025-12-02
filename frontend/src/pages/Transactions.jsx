@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { fetchTransactions, createTransaction } from '../services/api'
+import { fetchTransactions, createTransaction, updateTransaction, deleteTransaction } from '../services/api'
 
 export default function Transactions() {
   const navigate = useNavigate()
@@ -9,6 +9,8 @@ export default function Transactions() {
   const [items, setItems] = useState([])
   const [sort, setSort] = useState('date_desc')
   const [form, setForm] = useState({ title: '', amount: '', location: '', description: '' })
+  const [editingId, setEditingId] = useState(null)
+  const [editForm, setEditForm] = useState({ title: '', amount: '', location: '', description: '' })
 
   useEffect(() => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('ff_token') : null
@@ -59,6 +61,46 @@ export default function Transactions() {
     }
   }
 
+  function startEdit(tx) {
+    setEditingId(tx._id || tx.id)
+    setEditForm({
+      title: tx.title || '',
+      amount: String(tx.amount ?? ''),
+      location: tx.location || '',
+      description: tx.description || ''
+    })
+  }
+
+  async function handleEditSubmit(e) {
+    e.preventDefault()
+    setError(null)
+    try {
+      const payload = {
+        title: editForm.title.trim(),
+        amount: Number(editForm.amount),
+        location: editForm.location.trim(),
+        description: editForm.description.trim() || undefined
+      }
+      const res = await updateTransaction(editingId, payload)
+      const updated = res?.data
+      if (updated) {
+        setItems(prev => prev.map(t => ((t._id || t.id) === editingId ? updated : t)))
+        setEditingId(null)
+      }
+    } catch (e) {
+      setError('Mise à jour impossible')
+    }
+  }
+
+  async function handleDelete(id) {
+    try {
+      await deleteTransaction(id)
+      setItems(prev => prev.filter(t => (t._id || t.id) !== id))
+    } catch (e) {
+      setError('Suppression impossible')
+    }
+  }
+
   return (
     <div style={{ padding: '16px', maxWidth: 800, margin: '0 auto' }}>
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -101,7 +143,7 @@ export default function Transactions() {
                     padding: 12,
                     boxShadow: '0 1px 3px rgba(0,0,0,0.08)'
                   }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
                     <div style={{ fontWeight: 600 }}>{tx.title || tx.description || 'Transaction'}</div>
                     <div style={{ fontSize: 12, color: 'var(--muted)' }}>{tx.location || '—'}</div>
@@ -110,6 +152,22 @@ export default function Transactions() {
                     {typeof tx.amount === 'number' ? `${tx.amount.toFixed(2)} €` : tx.amount}
                   </div>
                 </div>
+                <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                  <button onClick={() => startEdit(tx)} style={{ padding: '6px 10px' }}>Modifier</button>
+                  <button onClick={() => handleDelete(tx._id || tx.id)} style={{ padding: '6px 10px' }}>Supprimer</button>
+                </div>
+                {editingId === (tx._id || tx.id) && (
+                  <form onSubmit={handleEditSubmit} style={{ display: 'grid', gap: 8, gridTemplateColumns: '1fr 1fr', marginTop: 8 }}>
+                    <input value={editForm.title} onChange={e => setEditForm(f => ({ ...f, title: e.target.value }))} placeholder="Titre" />
+                    <input value={editForm.amount} onChange={e => setEditForm(f => ({ ...f, amount: e.target.value }))} placeholder="Montant" type="number" step="0.01" />
+                    <input value={editForm.location} onChange={e => setEditForm(f => ({ ...f, location: e.target.value }))} placeholder="Lieu" />
+                    <input value={editForm.description} onChange={e => setEditForm(f => ({ ...f, description: e.target.value }))} placeholder="Description" />
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button type="submit" style={{ padding: '6px 10px' }}>Enregistrer</button>
+                      <button type="button" onClick={() => setEditingId(null)} style={{ padding: '6px 10px' }}>Annuler</button>
+                    </div>
+                  </form>
+                )}
               </li>
             ))}
             {items.length === 0 && (

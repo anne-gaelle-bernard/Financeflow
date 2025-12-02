@@ -30,6 +30,16 @@ export async function createTransaction(payload) {
   return res.data
 }
 
+export async function updateTransaction(id, payload) {
+  const res = await api.put(`/transactions/${id}`, payload)
+  return res.data
+}
+
+export async function deleteTransaction(id) {
+  const res = await api.delete(`/transactions/${id}`)
+  return res.data
+}
+
 // Auth endpoints
 export async function registerUser(payload) {
   const res = await api.post('/users/register', payload)

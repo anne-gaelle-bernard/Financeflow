@@ -107,12 +107,12 @@ export default function Home() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8, position: 'fixed', bottom: 12, left: 0, right: 0, maxWidth: 900, margin: '0 auto' }}>
         <button style={{ padding: 12, borderRadius: 8, background: '#0b3a33', border, color: '#e8fff6' }}>Dashboard</button>
         <button onClick={() => navigate('/transactions')} style={{ padding: 12, borderRadius: 8, background: '#0b3a33', border, color: '#e8fff6' }}>Transactions</button>
-        <button style={{ padding: 12, borderRadius: 8, background: '#0b3a33', border, color: '#e8fff6' }}>Budgets</button>
-        <button style={{ padding: 12, borderRadius: 8, background: '#0b3a33', border, color: '#e8fff6' }}>Reports</button>
+        <button onClick={() => navigate('/budgets')} style={{ padding: 12, borderRadius: 8, background: '#0b3a33', border, color: '#e8fff6' }}>Budgets</button>
+        <button onClick={() => navigate('/reports')} style={{ padding: 12, borderRadius: 8, background: '#0b3a33', border, color: '#e8fff6' }}>Reports</button>
         {isAuth ? (
-          <button onClick={handleLogout} style={{ padding: 12, borderRadius: 8, background: '#0b3a33', border, color: '#e8fff6' }}>Settings</button>
+          <button onClick={() => navigate('/settings')} style={{ padding: 12, borderRadius: 8, background: '#0b3a33', border, color: '#e8fff6' }}>Settings</button>
         ) : (
-          <button onClick={() => onNavigate('login')} style={{ padding: 12, borderRadius: 8, background: '#0b3a33', border, color: '#e8fff6' }}>Settings</button>
+          <button onClick={() => navigate('/login')} style={{ padding: 12, borderRadius: 8, background: '#0b3a33', border, color: '#e8fff6' }}>Settings</button>
         )}
       </div>
     </div>
