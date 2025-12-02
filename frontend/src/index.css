@@ -9,4 +9,21 @@ body {
   color: #111;
 }
 
+input {
+  background-color: transparent !important;
+  color: #e8fff6;
+  caret-color: #e8fff6;
+}
+
+input::placeholder {
+  color: #a7f3d0;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #0b3a33 inset;
+  -webkit-text-fill-color: #e8fff6;
+}
+
 code { background: #fff0; padding: 2px 6px; border-radius: 4px }

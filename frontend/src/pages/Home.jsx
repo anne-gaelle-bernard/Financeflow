@@ -1,7 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { setAuthToken, fetchTransactions } from '../services/api'
 
-export default function Home({ onNavigate }) {
+import { useNavigate } from 'react-router-dom'
+
+export default function Home() {
+  const navigate = useNavigate()
   const [isAuth, setIsAuth] = useState(() => (typeof window !== 'undefined' ? !!localStorage.getItem('ff_token') : false))
   const [user, setUser] = useState(() => {
     try {
@@ -24,7 +27,7 @@ export default function Home({ onNavigate }) {
     const token = typeof window !== 'undefined' ? localStorage.getItem('ff_token') : null
     if (!token) {
       setIsAuth(false)
-      onNavigate('login')
+      navigate('/login', { replace: true })
     } else {
       setIsAuth(true)
     }
@@ -51,18 +54,18 @@ export default function Home({ onNavigate }) {
   return (
     <div style={{ minHeight: '100vh', padding: 24, maxWidth: 900, margin: '0 auto', background: 'radial-gradient(80% 80% at 80% 80%, #0d3b34 0%, #06231f 70%)' }}>
       <div style={{ textAlign: 'center', marginBottom: 16 }}>
-        <div style={{ width: 64, height: 64, borderRadius: 18, background: 'linear-gradient(135deg,#0ea5e9,#10b981)', boxShadow: '0 0 30px rgba(16,185,129,0.35)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 24 }}>↗</div>
+        <div style={{ width: 64, height: 64, borderRadius: 18, background: 'linear-gradient(135deg,#0ea5e9,#10b981)', boxShadow: '0 0 30px rgba(16,185,129,0.35)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 24 }}></div>
         <div style={{ fontSize: 32, fontWeight: 800, color: '#e8fff6', marginTop: 10 }}>FinanceFlow</div>
         <div style={{ color: '#a7f3d0', fontSize: 14 }}>Tableau de bord</div>
       </div>
       <div style={{ background: cardBg, border: border, borderRadius: 16, padding: 16, boxShadow: '0 20px 40px rgba(0,0,0,0.35)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#0b3a33', border, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, color: '#86efac' }}>👤</div>
+          <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#0b3a33', border }}></div>
           <div>
             <div style={{ fontWeight: 800, color: '#e8fff6' }}>Bienvenue {user?.firstName || 'utilisateur'}</div>
             <div style={{ fontSize: 13, color: '#a7f3d0' }}>Total Balance : {totalBalance.toFixed(2)}€</div>
           </div>
-          <div style={{ marginLeft: 'auto', color: '#7dd3fc' }}>🔔</div>
+          <div style={{ marginLeft: 'auto' }}></div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginTop: 20 }}>
@@ -103,7 +106,7 @@ export default function Home({ onNavigate }) {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8, position: 'fixed', bottom: 12, left: 0, right: 0, maxWidth: 900, margin: '0 auto' }}>
         <button style={{ padding: 12, borderRadius: 8, background: '#0b3a33', border, color: '#e8fff6' }}>Dashboard</button>
-        <button onClick={() => onNavigate('transactions')} style={{ padding: 12, borderRadius: 8, background: '#0b3a33', border, color: '#e8fff6' }}>Transactions</button>
+        <button onClick={() => navigate('/transactions')} style={{ padding: 12, borderRadius: 8, background: '#0b3a33', border, color: '#e8fff6' }}>Transactions</button>
         <button style={{ padding: 12, borderRadius: 8, background: '#0b3a33', border, color: '#e8fff6' }}>Budgets</button>
         <button style={{ padding: 12, borderRadius: 8, background: '#0b3a33', border, color: '#e8fff6' }}>Reports</button>
         {isAuth ? (

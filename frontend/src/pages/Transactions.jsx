@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { fetchTransactions, createTransaction } from '../services/api'
 
-export default function Transactions({ onNavigate }) {
+export default function Transactions() {
+  const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [items, setItems] = useState([])
@@ -11,7 +13,7 @@ export default function Transactions({ onNavigate }) {
   useEffect(() => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('ff_token') : null
     if (!token) {
-      onNavigate('login')
+      navigate('/login', { replace: true })
       return
     }
     let mounted = true
@@ -61,7 +63,7 @@ export default function Transactions({ onNavigate }) {
     <div style={{ padding: '16px', maxWidth: 800, margin: '0 auto' }}>
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h1 style={{ margin: 0 }}>Transactions</h1>
-        <button onClick={() => onNavigate('home')} style={{ padding: '8px 12px' }}>Accueil</button>
+        <button onClick={() => navigate('/')} style={{ padding: '8px 12px' }}>Accueil</button>
       </header>
 
       <div style={{ marginTop: 16 }}>

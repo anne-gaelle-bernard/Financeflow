@@ -1,36 +1,21 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
+import { Routes, Route, Navigate } from 'react-router-dom'
+import ProtectedRoute from './routes/ProtectedRoute'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Transactions from './pages/Transactions'
 
 export default function App() {
-  function hasToken() {
-    try {
-      return typeof window !== 'undefined' && !!localStorage.getItem('ff_token')
-    } catch {
-      return false
-    }
-  }
-  const [currentPage, setCurrentPage] = useState(() => (hasToken() ? 'home' : 'signup'))
-  useEffect(() => {
-    if (!hasToken()) setCurrentPage('signup')
-  }, [])
-  const handleNavigate = (page) => {
-    if (!hasToken()) {
-      if (page === 'signup' || page === 'login') setCurrentPage(page)
-      else setCurrentPage('login')
-    } else {
-      setCurrentPage(page)
-    }
-  }
-
   return (
-    <div>
-      {currentPage === 'home' && <Home onNavigate={handleNavigate} />}
-      {currentPage === 'login' && <Login onNavigate={handleNavigate} />}
-      {currentPage === 'signup' && <Signup onNavigate={handleNavigate} />}
-      {currentPage === 'transactions' && <Transactions onNavigate={handleNavigate} />}
-    </div>
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+      <Route element={<ProtectedRoute />}> 
+        <Route path="/" element={<Home />} />
+        <Route path="/transactions" element={<Transactions />} />
+      </Route>
+      <Route path="*" element={<Navigate to="/login" replace />} />
+    </Routes>
   )
 }
