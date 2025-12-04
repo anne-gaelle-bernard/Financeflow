@@ -1,0 +1,10 @@
+const BudgetSchema = new mongoose.Schema({
+  categoryId: { type: mongoose.Schema.Types.ObjectId, ref: "Category" },
+  limit: Number,
+  subcategories: [
+    {
+      subcategoryId: { type: mongoose.Schema.Types.ObjectId, ref: "Subcategory" },
+      limit: Number
+    }
+  ]
+});
