@@ -1,8 +1,21 @@
 const User = require('../Models/UsersModel');
-const bcrypt = require('bcrypt');
+const Category = require('../Models/CategorieModel');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key_change_this_in_production';
+
+// Default categories
+const DEFAULT_CATEGORIES = [
+    { name: 'Alimentation', description: 'Courses, restaurants', color: '#ef4444' },
+    { name: 'Transport', description: 'Essence, transport en commun', color: '#3b82f6' },
+    { name: 'Loisirs', description: 'Divertissements, hobbies', color: '#8b5cf6' },
+    { name: 'Santé', description: 'Médical, pharmacie', color: '#06b6d4' },
+    { name: 'Logement', description: 'Loyer, électricité, eau', color: '#f59e0b' },
+    { name: 'Travail', description: 'Revenus, salaire', color: '#10b981' },
+    { name: 'Investissement', description: 'Épargne, placements', color: '#6366f1' },
+    { name: 'Autre', description: 'Autres dépenses', color: '#6b7280' }
+];
 
 // Generate JWT Token
 const generateToken = (userId) => {
@@ -35,33 +48,62 @@ exports.getUserById = async (req, res) => {
 // Create a new user (Register)
 exports.createUser = async (req, res) => {
     try {
-        const { username, email, password } = req.body;
+        const { firstName, lastName, username, email, password } = req.body;
+        
+        // Accept either firstName/lastName or username
+        const usernameToUse = username || `${firstName} ${lastName}`.trim();
         
         // Validation
-        if (!username || !email || !password) {
-            return res.status(400).json({ error: 'Username, email, and password are required' });
+        if (!usernameToUse || !email || !password) {
+            return res.status(400).json({ error: 'Username (or firstName/lastName), email, and password are required' });
         }
         
-        const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+        const existingUser = await User.findOne({ $or: [{ email }, { username: usernameToUse }] });
         if (existingUser) {
             return res.status(400).json({ error: 'User already exists' });
         }
-        const newUser = new User({ username, email, password });
+        const newUser = new User({ 
+            username: usernameToUse, 
+            firstName: firstName || usernameToUse.split(' ')[0],
+            lastName: lastName || usernameToUse.split(' ')[1] || '',
+            email, 
+            password 
+        });
         await newUser.save();
+        
+        // Create default categories for the new user
+        try {
+            const categoriesToCreate = DEFAULT_CATEGORIES.map(cat => ({
+                ...cat,
+                userId: newUser._id
+            }));
+            await Category.insertMany(categoriesToCreate);
+            console.log(`✅ Default categories created for user ${newUser._id}`);
+        } catch (catError) {
+            console.error('Error creating default categories:', catError);
+            // Don't fail the registration if categories fail
+        }
         
         // Generate JWT token
         const token = generateToken(newUser._id);
         
         res.status(201).json({ 
+            success: true,
             message: 'User registered successfully', 
-            userId: newUser._id,
-            username: newUser.username,
-            email: newUser.email,
-            token
+            data: {
+                user: {
+                    _id: newUser._id,
+                    username: newUser.username,
+                    firstName: newUser.firstName,
+                    lastName: newUser.lastName,
+                    email: newUser.email
+                },
+                token
+            }
         });
     } catch (error) {
         console.error('Registration error:', error);
-        res.status(500).json({ error: 'Error registering user', details: error.message });
+        res.status(500).json({ success: false, error: 'Error registering user', details: error.message });
     }
 };
 
@@ -106,30 +148,37 @@ exports.loginUser = async (req, res) => {
         
         // Validation
         if (!email || !password) {
-            return res.status(400).json({ error: 'Email and password are required' });
+            return res.status(400).json({ success: false, error: 'Email and password are required' });
         }
         
         const user = await User.findOne({ email });
         if (!user) {
-            return res.status(404).json({ error: 'User not found' });
+            return res.status(404).json({ success: false, error: 'User not found' });
         }
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(400).json({ error: 'Invalid credentials' });
+            return res.status(400).json({ success: false, error: 'Invalid credentials' });
         }
         
         // Generate JWT token
         const token = generateToken(user._id);
         
         res.status(200).json({ 
+            success: true,
             message: 'Login successful', 
-            userId: user._id, 
-            username: user.username,
-            email: user.email,
-            token
+            data: {
+                user: {
+                    _id: user._id,
+                    username: user.username,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    email: user.email
+                },
+                token
+            }
         });
     } catch (error) {
         console.error('Login error:', error);
-        res.status(500).json({ error: 'Error logging in user' });
+        res.status(500).json({ success: false, error: 'Error logging in user' });
     }
 };

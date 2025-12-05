@@ -27,15 +27,17 @@ export default function Signup() {
       return
     }
     try {
-      const res = await registerUser({ firstName, lastName, email, password, passwordConfirm })
-      if (res?.success) {
-        setAuthToken(null)
+      const res = await registerUser({ firstName, lastName, email, password })
+      console.log('Register response:', res)
+      if (res?.success && res?.data?.token) {
+        setAuthToken(res.data.token)
         navigate('/login')
       } else {
-        setError(res?.message || 'Inscription échouée')
+        setError(res?.error || res?.message || 'Inscription échouée')
       }
     } catch (e) {
-      setError('Inscription impossible')
+      console.error('Register error:', e)
+      setError(e.response?.data?.error || 'Inscription impossible')
     }
   }
 

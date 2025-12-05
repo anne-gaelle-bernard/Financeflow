@@ -1,12 +1,20 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const becrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 const UserSchema = new Schema({
     username: {
         type: String,
         required: true,
         unique: true
+    },
+    firstName: {
+        type: String,
+        default: ''
+    },
+    lastName: {
+        type: String,
+        default: ''
     },
     email: {
         type: String,
@@ -21,8 +29,8 @@ const UserSchema = new Schema({
 
 UserSchema.pre('save', async function() {           
     if (this.isModified('password') || this.isNew) {
-            const salt = await becrypt.genSalt(10);
-            this.password = await becrypt.hash(this.password, salt);
+            const salt = await bcrypt.genSalt(10);
+            this.password = await bcrypt.hash(this.password, salt);
         };
 });
 

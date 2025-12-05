@@ -3,7 +3,10 @@ const router = express.Router();
 const categoryController = require('../Controllers/CategoryController');
 const { verifyToken } = require('../Middelwares/AuthMiddleware');
 
-// All category routes are protected
+// Public route to initialize categories
+router.post('/init', categoryController.initializeUserCategories);
+
+// All other category routes are protected
 router.use(verifyToken);
 
 // Get all categories

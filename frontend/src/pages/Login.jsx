@@ -17,17 +17,19 @@ export default function Login() {
         return
       }
       const res = await loginUser({ email, password })
-      if (res?.success) {
-        try {
-          const u = res?.data?.user
-          if (u) localStorage.setItem('ff_user', JSON.stringify(u))
-        } catch {}
+      console.log('Login response:', res)
+      if (res?.success && res?.data?.token) {
+        localStorage.setItem('ff_token', res.data.token)
+        if (res?.data?.user) {
+          localStorage.setItem('ff_user', JSON.stringify(res.data.user))
+        }
         navigate('/')
       } else {
-        setError(res?.message || 'Connexion échouée')
+        setError(res?.error || res?.message || 'Connexion échouée')
       }
     } catch (e) {
-      setError('Connexion impossible')
+      console.error('Login error:', e)
+      setError(e.response?.data?.error || 'Connexion impossible')
     }
   }
 

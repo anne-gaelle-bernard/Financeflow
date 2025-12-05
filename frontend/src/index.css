@@ -1,12 +1,33 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 :root {
-  --bg: #f7fafc;
-  --muted: #666;
+  --bg: #06231f;
+  --muted: #94a3b8;
+  --primary: #10b981;
+}
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
 }
 
 body {
   margin: 0;
   background: var(--bg);
-  color: #111;
+  color: #e8fff6;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
+    'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+input, select, textarea {
+  font-family: inherit;
 }
 
 input {
@@ -17,6 +38,16 @@ input {
 
 input::placeholder {
   color: #a7f3d0;
+}
+
+select {
+  background-color: #0b3a33 !important;
+  color: #e8fff6;
+}
+
+select option {
+  background: #0b3a33;
+  color: #e8fff6;
 }
 
 input:-webkit-autofill,
