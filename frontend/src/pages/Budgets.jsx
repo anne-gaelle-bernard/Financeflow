@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react'
-import { getBudgetsByUser, createBudget, updateBudget, deleteBudget, getCategoriesByUser } from '../services/api'
+import { getBudgetsByUser, createBudget, updateBudget, deleteBudget, getCategoriesByUser, getAllCategories, initUserCategories } from '../services/api'
+import CategoryList from '../components/CategoryList'
+import CategorySelect from '../components/CategorySelect'
 import '../styles/main.css'
 
 export default function Budgets() {
   const [budgets, setBudgets] = useState([])
   const [categories, setCategories] = useState([])
+  const [activeCategory, setActiveCategory] = useState(null)
   const [loading, setLoading] = useState(false)
   const [showModal, setShowModal] = useState(false)
   const [editingId, setEditingId] = useState(null)
@@ -27,10 +30,20 @@ export default function Budgets() {
     try {
       const [budRes, catRes] = await Promise.all([
         getBudgetsByUser(user.userId),
-        getCategoriesByUser(user.userId)
+        user?.userId ? getCategoriesByUser(user.userId) : getAllCategories()
       ])
       setBudgets(Array.isArray(budRes) ? budRes : [])
-      setCategories(Array.isArray(catRes) ? catRes : [])
+      let cats = Array.isArray(catRes) ? catRes : []
+      if (user?.userId && cats.length === 0) {
+        try {
+          await initUserCategories(user.userId)
+          const refetched = await getCategoriesByUser(user.userId)
+          cats = Array.isArray(refetched) ? refetched : []
+        } catch (e) {
+          console.error('Error initializing categories:', e)
+        }
+      }
+      setCategories(cats)
     } catch (err) {
       console.error('Error loading data:', err)
     }
@@ -67,7 +80,13 @@ export default function Budgets() {
   }
 
   const handleEdit = (budget) => {
-    setFormData(budget)
+    const cid = typeof budget.categoryId === 'object' ? budget.categoryId?._id : budget.categoryId
+    setFormData({
+      categoryId: cid || '',
+      amount: budget.amount?.toString() || '',
+      month: budget.month || '',
+      year: budget.year || new Date().getFullYear()
+    })
     setEditingId(budget._id)
     setShowModal(true)
   }
@@ -93,6 +112,7 @@ export default function Budgets() {
           </button>
         </div>
 
+        <CategoryList categories={categories} selectedId={activeCategory} onSelect={setActiveCategory} />
         {loading ? (
           <div style={{ color: '#a7f3d0' }}>Loading...</div>
         ) : (
@@ -108,7 +128,13 @@ export default function Budgets() {
                 </tr>
               </thead>
               <tbody>
-                {budgets.map(budget => (
+                {budgets
+                  .filter(budget => {
+                    if (!activeCategory) return true
+                    const cid = typeof budget.categoryId === 'object' ? budget.categoryId?._id : budget.categoryId
+                    return cid === activeCategory
+                  })
+                  .map(budget => (
                   <tr key={budget._id}>
                     <td>{budget.categoryId?.name || 'N/A'}</td>
                     <td>{budget.month}</td>
@@ -137,15 +163,12 @@ export default function Budgets() {
               <button className="close-btn" onClick={() => setShowModal(false)}>×</button>
             </div>
             <form onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label>Category</label>
-                <select name="categoryId" value={formData.categoryId} onChange={handleChange} required>
-                  <option value="">Select Category</option>
-                  {categories.map(cat => (
-                    <option key={cat._id} value={cat._id}>{cat.name}</option>
-                  ))}
-                </select>
-              </div>
+              <CategorySelect
+                categories={categories}
+                value={formData.categoryId}
+                onChange={handleChange}
+                label="Category"
+              />
               <div className="form-group">
                 <label>Month</label>
                 <select name="month" value={formData.month} onChange={handleChange} required>

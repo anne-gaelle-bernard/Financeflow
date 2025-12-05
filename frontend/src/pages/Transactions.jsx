@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react'
-import { fetchTransactions, createTransaction, updateTransaction, deleteTransaction, getCategoriesByUser } from '../services/api'
+import { fetchTransactions, createTransaction, updateTransaction, deleteTransaction, getCategoriesByUser, getAllCategories, initUserCategories } from '../services/api'
+import CategoryList from '../components/CategoryList'
+import CategorySelect from '../components/CategorySelect'
 import '../styles/main.css'
 
 export default function Transactions() {
   const [transactions, setTransactions] = useState([])
   const [categories, setCategories] = useState([])
+  const [activeCategory, setActiveCategory] = useState(null)
   const [loading, setLoading] = useState(false)
   const [showModal, setShowModal] = useState(false)
   const [editingId, setEditingId] = useState(null)
@@ -26,10 +29,20 @@ export default function Transactions() {
     try {
       const [txRes, catRes] = await Promise.all([
         fetchTransactions(),
-        getCategoriesByUser(user.userId)
+        user?.userId ? getCategoriesByUser(user.userId) : getAllCategories()
       ])
       setTransactions(Array.isArray(txRes) ? txRes : [])
-      setCategories(Array.isArray(catRes) ? catRes : [])
+      let cats = Array.isArray(catRes) ? catRes : []
+      if (user?.userId && cats.length === 0) {
+        try {
+          await initUserCategories(user.userId)
+          const refetched = await getCategoriesByUser(user.userId)
+          cats = Array.isArray(refetched) ? refetched : []
+        } catch (e) {
+          console.error('Error initializing categories:', e)
+        }
+      }
+      setCategories(cats)
     } catch (err) {
       console.error('Error loading data:', err)
     }
@@ -65,7 +78,13 @@ export default function Transactions() {
   }
 
   const handleEdit = (tx) => {
-    setFormData(tx)
+    const cid = typeof tx.categoryId === 'object' ? tx.categoryId?._id : tx.categoryId
+    setFormData({
+      categoryId: cid || '',
+      amount: tx.amount?.toString() || '',
+      type: tx.type || 'expense',
+      description: tx.description || ''
+    })
     setEditingId(tx._id)
     setShowModal(true)
   }
@@ -91,6 +110,7 @@ export default function Transactions() {
           </button>
         </div>
 
+        <CategoryList categories={categories} selectedId={activeCategory} onSelect={setActiveCategory} />
         {loading ? (
           <div style={{ color: '#a7f3d0' }}>Loading...</div>
         ) : (
@@ -107,7 +127,13 @@ export default function Transactions() {
                 </tr>
               </thead>
               <tbody>
-                {transactions.map(tx => (
+                {transactions
+                  .filter(tx => {
+                    if (!activeCategory) return true
+                    const cid = typeof tx.categoryId === 'object' ? tx.categoryId?._id : tx.categoryId
+                    return cid === activeCategory
+                  })
+                  .map(tx => (
                   <tr key={tx._id}>
                     <td>{new Date(tx.date).toLocaleDateString()}</td>
                     <td>{tx.categoryId?.name || 'N/A'}</td>
@@ -139,15 +165,12 @@ export default function Transactions() {
               <button className="close-btn" onClick={() => setShowModal(false)}>×</button>
             </div>
             <form onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label>Category</label>
-                <select name="categoryId" value={formData.categoryId} onChange={handleChange} required>
-                  <option value="">Select Category</option>
-                  {categories.map(cat => (
-                    <option key={cat._id} value={cat._id}>{cat.name}</option>
-                  ))}
-                </select>
-              </div>
+              <CategorySelect
+                categories={categories}
+                value={formData.categoryId}
+                onChange={handleChange}
+                label="Category"
+              />
               <div className="form-group">
                 <label>Type</label>
                 <select name="type" value={formData.type} onChange={handleChange}>

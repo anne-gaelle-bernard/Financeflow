@@ -125,6 +125,11 @@ export async function deleteCategory(id) {
   return res.data
 }
 
+export async function initUserCategories(userId) {
+  const res = await api.post('/categories/init', { userId })
+  return res.data
+}
+
 // ============ BUDGETS ENDPOINTS ============
 export async function getAllBudgets() {
   const res = await api.get('/budgets')

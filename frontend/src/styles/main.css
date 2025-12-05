@@ -267,3 +267,40 @@ tr:hover {
   font-size: 28px;
   cursor: pointer;
 }
+
+/* Category List */
+.category-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.category-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(20, 44, 40, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #e8fff6;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.category-item:hover {
+  background: rgba(16, 185, 129, 0.08);
+}
+
+.category-item.active {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+.category-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
