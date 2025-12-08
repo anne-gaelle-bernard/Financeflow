@@ -17,12 +17,9 @@ export default function Login() {
         return
       }
       const res = await loginUser({ email, password })
-      console.log('Login response:', res)
-      if (res?.success && res?.data?.token) {
-        localStorage.setItem('ff_token', res.data.token)
-        if (res?.data?.user) {
-          localStorage.setItem('ff_user', JSON.stringify(res.data.user))
-        }
+      if (res?.success && res?.data?.token && res?.data?.user) {
+        const user = res.data.user
+        localStorage.setItem('ff_user', JSON.stringify({ userId: user._id, ...user }))
         navigate('/')
       } else {
         setError(res?.error || res?.message || 'Connexion échouée')

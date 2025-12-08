@@ -304,3 +304,140 @@ tr:hover {
   border-radius: 50%;
   display: inline-block;
 }
+
+/* Bottom Navigation */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: none;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  padding: 10px 12px;
+  background: rgba(20, 44, 40, 0.85);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+  z-index: 900;
+}
+
+.bottom-nav-item {
+  display: grid;
+  place-items: center;
+  gap: 6px;
+  padding: 8px 6px;
+  background: #0b3a33;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  color: #a7f3d0;
+  cursor: pointer;
+}
+
+.bottom-nav-item.active {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.4);
+  color: #e8fff6;
+}
+
+.bottom-nav-icon {
+  font-size: 16px;
+}
+
+.bottom-nav-label {
+  font-size: 12px;
+}
+
+/* Dashboard Cards */
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.dashboard-card {
+  background: rgba(20, 44, 40, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.dashboard-card-title {
+  color: #a7f3d0;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.dashboard-card-value {
+  font-size: 28px;
+  font-weight: 800;
+  color: #e8fff6;
+}
+
+.circle-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.circle-action {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  align-items: center;
+  gap: 12px;
+  background: rgba(20, 44, 40, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 12px;
+  color: #e8fff6;
+}
+
+.circle-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #0b3a33;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #a7f3d0;
+  font-size: 20px;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .content {
+    padding: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .content {
+    padding: 18px;
+    max-width: 100%;
+  }
+  .bottom-nav {
+    display: grid;
+  }
+  .table-container {
+    overflow-x: auto;
+  }
+  table {
+    min-width: 600px;
+  }
+  .category-list {
+    gap: 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .content {
+    padding: 12px;
+  }
+  .circle-actions {
+    grid-template-columns: 1fr;
+  }
+  .dashboard-cards {
+    grid-template-columns: 1fr 1fr;
+  }
+}

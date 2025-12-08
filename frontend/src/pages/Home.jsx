@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { getReportsByUser, getTransactionsByUser, getBudgetsByUser } from '../services/api'
 import { useNavigate } from 'react-router-dom'
+import BottomNav from '../components/BottomNav'
 import '../styles/main.css'
 
 export default function Home() {
@@ -85,123 +86,51 @@ export default function Home() {
   return (
     <div className="main-layout">
       <div className="content">
-        <div style={{ marginBottom: 32 }}>
-          <h1 style={{ color: '#e8fff6', margin: '0 0 8px 0' }}>
-            Welcome, {user?.username || 'User'}!
-          </h1>
-          <p style={{ color: '#a7f3d0', margin: 0 }}>
-            {currentMonth} {currentYear}
-          </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+          <div className="circle-icon">👤</div>
+          <div>
+            <div style={{ color: '#e8fff6', fontWeight: 800 }}>Bienvenue {user?.firstName || user?.username || 'Utilisateur'}</div>
+            <div style={{ color: '#a7f3d0', fontSize: 13 }}>Total Balance: ${stats.balance.toFixed(2)}</div>
+          </div>
         </div>
 
         {loading ? (
           <div style={{ color: '#a7f3d0' }}>Loading...</div>
         ) : (
           <>
-            {/* Stats Cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 32 }}>
-              <div className="table-container" style={{ marginBottom: 0 }}>
-                <div style={{ color: '#a7f3d0', fontSize: 12, marginBottom: 8 }}>BALANCE</div>
-                <div style={{
-                  fontSize: 32,
-                  fontWeight: 800,
-                  color: stats.balance >= 0 ? '#86efac' : '#fecaca'
-                }}>
-                  ${stats.balance.toFixed(2)}
-                </div>
+            <div className="dashboard-cards">
+              <div className="dashboard-card">
+                <div className="dashboard-card-title">Income</div>
+                <div className="dashboard-card-value" style={{ color: '#86efac' }}>${stats.income.toFixed(2)}</div>
               </div>
-
-              <div className="table-container" style={{ marginBottom: 0 }}>
-                <div style={{ color: '#a7f3d0', fontSize: 12, marginBottom: 8 }}>INCOME</div>
-                <div style={{ fontSize: 32, fontWeight: 800, color: '#86efac' }}>
-                  ${stats.income.toFixed(2)}
-                </div>
+              <div className="dashboard-card">
+                <div className="dashboard-card-title">Expenses</div>
+                <div className="dashboard-card-value" style={{ color: '#fecaca' }}>${stats.expense.toFixed(2)}</div>
               </div>
-
-              <div className="table-container" style={{ marginBottom: 0 }}>
-                <div style={{ color: '#a7f3d0', fontSize: 12, marginBottom: 8 }}>EXPENSES</div>
-                <div style={{ fontSize: 32, fontWeight: 800, color: '#fecaca' }}>
-                  ${stats.expense.toFixed(2)}
-                </div>
-              </div>
-
-              <div className="table-container" style={{ marginBottom: 0 }}>
-                <div style={{ color: '#a7f3d0', fontSize: 12, marginBottom: 8 }}>TRANSACTIONS</div>
-                <div style={{ fontSize: 32, fontWeight: 800, color: '#22d3ee' }}>
-                  {stats.transactions}
-                </div>
+              <div className="dashboard-card">
+                <div className="dashboard-card-title">Saving</div>
+                <div className="dashboard-card-value" style={{ color: '#22d3ee' }}>${Math.max(0, stats.balance).toFixed(2)}</div>
               </div>
             </div>
 
-            {/* Quick Actions */}
-            <div style={{ marginBottom: 32 }}>
-              <h2 style={{ color: '#e8fff6', marginBottom: 16 }}>Quick Actions</h2>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12 }}>
-                <button
-                  className="btn btn-primary"
-                  onClick={() => navigateTo('/transactions')}
-                >
-                  View Transactions
-                </button>
-                <button
-                  className="btn btn-primary"
-                  onClick={() => navigateTo('/budgets')}
-                >
-                  Manage Budgets
-                </button>
-                <button
-                  className="btn btn-primary"
-                  onClick={() => navigateTo('/reports')}
-                >
-                  View Reports
-                </button>
-                <button
-                  className="btn btn-primary"
-                  onClick={() => navigateTo('/settings')}
-                >
-                  Settings
-                </button>
+            <div className="circle-actions" style={{ marginBottom: 24 }}>
+              <div className="circle-action">
+                <div className="circle-icon">＋</div>
+                <button className="btn" onClick={() => navigate('/transactions?new=1')}>Add New Transaction</button>
+              </div>
+              <div className="circle-action">
+                <div className="circle-icon">↑</div>
+                <button className="btn" onClick={() => navigate('/transactions?new=1&type=income')}>Income</button>
+              </div>
+              <div className="circle-action">
+                <div className="circle-icon">↓</div>
+                <button className="btn" onClick={() => navigate('/transactions?new=1&type=expense')}>Expense</button>
               </div>
             </div>
-
-            {/* Recent Transactions */}
-            {transactions.length > 0 && (
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                  <h2 style={{ color: '#e8fff6', margin: 0 }}>Recent Transactions</h2>
-                  <button className="btn btn-small" onClick={() => navigateTo('/transactions')}>
-                    See all
-                  </button>
-                </div>
-                <div className="table-container">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Date</th>
-                        <th>Category</th>
-                        <th>Type</th>
-                        <th>Amount</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {transactions.slice(0, 5).map(tx => (
-                        <tr key={tx._id}>
-                          <td>{new Date(tx.date).toLocaleDateString()}</td>
-                          <td>{tx.categoryId?.name || 'N/A'}</td>
-                          <td style={{ color: tx.type === 'income' ? '#86efac' : '#fecaca' }}>
-                            {tx.type}
-                          </td>
-                          <td>${tx.amount.toFixed(2)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
           </>
         )}
       </div>
+      <BottomNav />
     </div>
   )
 }

@@ -42,7 +42,13 @@ exports.getTransactionById = async (req, res) => {
 // Create a new transaction
 exports.createTransaction = async (req, res) => {
     try {
-        const { userId, categoryId, amount, type, description, date } = req.body;
+        const { categoryId, amount, type, description, date } = req.body;
+        const userId = req.body.userId || req.userId;
+
+        if (!userId || !categoryId || !amount || !type || !description) {
+            return res.status(400).json({ error: 'Missing required fields' });
+        }
+
         const newTransaction = new Transaction({
             userId,
             categoryId,
@@ -52,7 +58,9 @@ exports.createTransaction = async (req, res) => {
             date: date || new Date()
         });
         await newTransaction.save();
-        res.status(201).json({ message: 'Transaction created successfully', transaction: newTransaction });
+        const populated = await Transaction.findById(newTransaction._id)
+            .populate('categoryId', 'name');
+        res.status(201).json({ message: 'Transaction created successfully', transaction: populated });
     } catch (error) {
         res.status(500).json({ error: 'Error creating transaction' });
     }

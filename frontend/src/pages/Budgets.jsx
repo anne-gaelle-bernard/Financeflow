@@ -8,9 +8,12 @@ export default function Budgets() {
   const [budgets, setBudgets] = useState([])
   const [categories, setCategories] = useState([])
   const [activeCategory, setActiveCategory] = useState(null)
+  const [filterMonth, setFilterMonth] = useState('')
+  const [filterYear, setFilterYear] = useState('')
   const [loading, setLoading] = useState(false)
   const [showModal, setShowModal] = useState(false)
   const [editingId, setEditingId] = useState(null)
+  const [errorMsg, setErrorMsg] = useState('')
   const [formData, setFormData] = useState({
     categoryId: '',
     amount: '',
@@ -50,6 +53,22 @@ export default function Budgets() {
     setLoading(false)
   }
 
+  const ensureCategories = async () => {
+    try {
+      if (user?.userId && categories.length === 0) {
+        await initUserCategories(user.userId)
+        const refetched = await getCategoriesByUser(user.userId)
+        const cats = Array.isArray(refetched) ? refetched : []
+        setCategories(cats)
+        if (cats[0]?._id) {
+          setFormData(prev => ({ ...prev, categoryId: prev.categoryId || cats[0]._id }))
+        }
+      }
+    } catch (e) {
+      console.error('ensureCategories error:', e)
+    }
+  }
+
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
@@ -58,6 +77,7 @@ export default function Budgets() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
+      setErrorMsg('')
       const payload = {
         ...formData,
         userId: user.userId,
@@ -76,6 +96,7 @@ export default function Budgets() {
       loadData()
     } catch (err) {
       console.error('Error saving budget:', err)
+      setErrorMsg(err.response?.data?.error || 'Failed to save budget')
     }
   }
 
@@ -113,6 +134,33 @@ export default function Budgets() {
         </div>
 
         <CategoryList categories={categories} selectedId={activeCategory} onSelect={setActiveCategory} />
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 8, marginBottom: 12 }}>
+          <div className="form-group">
+            <label>Filter Month</label>
+            <select value={filterMonth} onChange={(e) => setFilterMonth(e.target.value)}>
+              <option value="">All</option>
+              {months.map(m => <option key={m} value={m}>{m}</option>)}
+            </select>
+          </div>
+          <div className="form-group">
+            <label>Filter Year</label>
+            <input type="number" value={filterYear} onChange={(e) => setFilterYear(e.target.value)} placeholder="All" />
+          </div>
+        </div>
+        <div className="dashboard-cards">
+          <div className="dashboard-card">
+            <div className="dashboard-card-title">Total Budget</div>
+            <div className="dashboard-card-value">${budgets
+              .filter(b => {
+                const byCat = !activeCategory || (typeof b.categoryId === 'object' ? b.categoryId?._id : b.categoryId) === activeCategory
+                const byMonth = !filterMonth || b.month === filterMonth
+                const byYear = !filterYear || String(b.year) === String(filterYear)
+                return byCat && byMonth && byYear
+              })
+              .reduce((s, b) => s + (b.amount || 0), 0)
+              .toFixed(2)}</div>
+          </div>
+        </div>
         {loading ? (
           <div style={{ color: '#a7f3d0' }}>Loading...</div>
         ) : (
@@ -130,9 +178,10 @@ export default function Budgets() {
               <tbody>
                 {budgets
                   .filter(budget => {
-                    if (!activeCategory) return true
-                    const cid = typeof budget.categoryId === 'object' ? budget.categoryId?._id : budget.categoryId
-                    return cid === activeCategory
+                    const byCat = !activeCategory || (typeof budget.categoryId === 'object' ? budget.categoryId?._id : budget.categoryId) === activeCategory
+                    const byMonth = !filterMonth || budget.month === filterMonth
+                    const byYear = !filterYear || String(budget.year) === String(filterYear)
+                    return byCat && byMonth && byYear
                   })
                   .map(budget => (
                   <tr key={budget._id}>
@@ -169,6 +218,16 @@ export default function Budgets() {
                 onChange={handleChange}
                 label="Category"
               />
+              {categories.length === 0 && user?.userId && (
+                <div style={{ margin: '8px 0 12px 0' }}>
+                  <button type="button" className="btn" onClick={ensureCategories}>Create default categories</button>
+                </div>
+              )}
+              {errorMsg && (
+                <div className="error-message" style={{ marginBottom: 8 }}>
+                  {errorMsg}
+                </div>
+              )}
               <div className="form-group">
                 <label>Month</label>
                 <select name="month" value={formData.month} onChange={handleChange} required>
@@ -186,7 +245,9 @@ export default function Budgets() {
                 <label>Amount</label>
                 <input type="number" name="amount" value={formData.amount} onChange={handleChange} required step="0.01" />
               </div>
-              <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
+              <button type="submit" className="btn btn-primary" style={{ width: '100%' }}
+                disabled={!formData.categoryId || !formData.month || !formData.year || !formData.amount || Number(formData.amount) <= 0}
+              >
                 Save
               </button>
             </form>

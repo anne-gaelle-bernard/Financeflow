@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { fetchTransactions, createTransaction, updateTransaction, deleteTransaction, getCategoriesByUser, getAllCategories, initUserCategories } from '../services/api'
+import { getTransactionsByUser, createTransaction, updateTransaction, deleteTransaction, getCategoriesByUser, getAllCategories, initUserCategories } from '../services/api'
 import CategoryList from '../components/CategoryList'
 import CategorySelect from '../components/CategorySelect'
 import '../styles/main.css'
@@ -8,9 +8,11 @@ export default function Transactions() {
   const [transactions, setTransactions] = useState([])
   const [categories, setCategories] = useState([])
   const [activeCategory, setActiveCategory] = useState(null)
+  const [activeType, setActiveType] = useState('all')
   const [loading, setLoading] = useState(false)
   const [showModal, setShowModal] = useState(false)
   const [editingId, setEditingId] = useState(null)
+  const [errorMsg, setErrorMsg] = useState('')
   const [formData, setFormData] = useState({
     categoryId: '',
     amount: '',
@@ -28,7 +30,7 @@ export default function Transactions() {
     setLoading(true)
     try {
       const [txRes, catRes] = await Promise.all([
-        fetchTransactions(),
+        user?.userId ? getTransactionsByUser(user.userId) : Promise.resolve([]),
         user?.userId ? getCategoriesByUser(user.userId) : getAllCategories()
       ])
       setTransactions(Array.isArray(txRes) ? txRes : [])
@@ -49,6 +51,35 @@ export default function Transactions() {
     setLoading(false)
   }
 
+  const ensureCategories = async () => {
+    try {
+      if (user?.userId && categories.length === 0) {
+        await initUserCategories(user.userId)
+        const refetched = await getCategoriesByUser(user.userId)
+        const cats = Array.isArray(refetched) ? refetched : []
+        setCategories(cats)
+        if (cats[0]?._id) {
+          setFormData(prev => ({ ...prev, categoryId: prev.categoryId || cats[0]._id }))
+        }
+      }
+    } catch (e) {
+      console.error('ensureCategories error:', e)
+    }
+  }
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const openNew = params.get('new')
+    const typeParam = params.get('type')
+    if (openNew) {
+      setShowModal(true)
+      if (typeParam === 'income' || typeParam === 'expense') {
+        setFormData(prev => ({ ...prev, type: typeParam }))
+      }
+      ensureCategories()
+    }
+  }, [])
+
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
@@ -57,6 +88,7 @@ export default function Transactions() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
+      setErrorMsg('')
       const payload = {
         ...formData,
         userId: user.userId,
@@ -68,12 +100,14 @@ export default function Transactions() {
       } else {
         await createTransaction(payload)
       }
+      setActiveCategory(null)
       setFormData({ categoryId: '', amount: '', type: 'expense', description: '' })
       setEditingId(null)
       setShowModal(false)
       loadData()
     } catch (err) {
       console.error('Error saving transaction:', err)
+      setErrorMsg(err.response?.data?.error || 'Failed to save transaction')
     }
   }
 
@@ -111,6 +145,50 @@ export default function Transactions() {
         </div>
 
         <CategoryList categories={categories} selectedId={activeCategory} onSelect={setActiveCategory} />
+        <div className="category-list" style={{ marginTop: 8 }}>
+          <button className={`category-item ${activeType === 'all' ? 'active' : ''}`} onClick={() => setActiveType('all')}>All</button>
+          <button className={`category-item ${activeType === 'income' ? 'active' : ''}`} onClick={() => setActiveType('income')}>Income</button>
+          <button className={`category-item ${activeType === 'expense' ? 'active' : ''}`} onClick={() => setActiveType('expense')}>Expense</button>
+        </div>
+        <div className="dashboard-cards">
+          <div className="dashboard-card">
+            <div className="dashboard-card-title">Income</div>
+            <div className="dashboard-card-value" style={{ color: '#86efac' }}>${transactions
+              .filter(tx => {
+                const byCat = !activeCategory || (typeof tx.categoryId === 'object' ? tx.categoryId?._id : tx.categoryId) === activeCategory
+                const byType = activeType === 'all' || tx.type === activeType
+                return byCat && byType
+              })
+              .filter(tx => tx.type === 'income')
+              .reduce((s, tx) => s + (tx.amount || 0), 0)
+              .toFixed(2)}</div>
+          </div>
+          <div className="dashboard-card">
+            <div className="dashboard-card-title">Expenses</div>
+            <div className="dashboard-card-value" style={{ color: '#fecaca' }}>${transactions
+              .filter(tx => {
+                const byCat = !activeCategory || (typeof tx.categoryId === 'object' ? tx.categoryId?._id : tx.categoryId) === activeCategory
+                const byType = activeType === 'all' || tx.type === activeType
+                return byCat && byType
+              })
+              .filter(tx => tx.type === 'expense')
+              .reduce((s, tx) => s + (tx.amount || 0), 0)
+              .toFixed(2)}</div>
+          </div>
+          <div className="dashboard-card">
+            <div className="dashboard-card-title">Net</div>
+            <div className="dashboard-card-value">${(() => {
+              const list = transactions.filter(tx => {
+                const byCat = !activeCategory || (typeof tx.categoryId === 'object' ? tx.categoryId?._id : tx.categoryId) === activeCategory
+                const byType = activeType === 'all' || tx.type === activeType
+                return byCat && byType
+              })
+              const inc = list.filter(tx => tx.type === 'income').reduce((s, tx) => s + (tx.amount || 0), 0)
+              const exp = list.filter(tx => tx.type === 'expense').reduce((s, tx) => s + (tx.amount || 0), 0)
+              return (inc - exp).toFixed(2)
+            })()}</div>
+          </div>
+        </div>
         {loading ? (
           <div style={{ color: '#a7f3d0' }}>Loading...</div>
         ) : (
@@ -129,9 +207,9 @@ export default function Transactions() {
               <tbody>
                 {transactions
                   .filter(tx => {
-                    if (!activeCategory) return true
-                    const cid = typeof tx.categoryId === 'object' ? tx.categoryId?._id : tx.categoryId
-                    return cid === activeCategory
+                    const byCat = !activeCategory || (typeof tx.categoryId === 'object' ? tx.categoryId?._id : tx.categoryId) === activeCategory
+                    const byType = activeType === 'all' || tx.type === activeType
+                    return byCat && byType
                   })
                   .map(tx => (
                   <tr key={tx._id}>
@@ -171,6 +249,16 @@ export default function Transactions() {
                 onChange={handleChange}
                 label="Category"
               />
+              {categories.length === 0 && user?.userId && (
+                <div style={{ margin: '8px 0 12px 0' }}>
+                  <button type="button" className="btn" onClick={ensureCategories}>Create default categories</button>
+                </div>
+              )}
+              {errorMsg && (
+                <div className="error-message" style={{ marginBottom: 8 }}>
+                  {errorMsg}
+                </div>
+              )}
               <div className="form-group">
                 <label>Type</label>
                 <select name="type" value={formData.type} onChange={handleChange}>
@@ -186,7 +274,9 @@ export default function Transactions() {
                 <label>Description</label>
                 <input type="text" name="description" value={formData.description} onChange={handleChange} required />
               </div>
-              <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
+              <button type="submit" className="btn btn-primary" style={{ width: '100%' }}
+                disabled={!formData.categoryId || !formData.type || !formData.amount || Number(formData.amount) <= 0 || !formData.description}
+              >
                 Save
               </button>
             </form>

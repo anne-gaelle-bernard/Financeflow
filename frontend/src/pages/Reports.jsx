@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { getReportsByUser, createReport, updateReport, deleteReport } from '../services/api'
+import { getReportsByUser, createReport, updateReport, deleteReport, getTransactionsByUser } from '../services/api'
 import '../styles/main.css'
 
 export default function Reports() {
@@ -62,6 +62,45 @@ export default function Reports() {
     }
   }
 
+  const handleGenerateFromTransactions = async () => {
+    try {
+      const txs = await getTransactionsByUser(user.userId)
+      const list = Array.isArray(txs) ? txs : []
+      const monthIdx = months.indexOf(formData.month)
+      if (monthIdx < 0) return
+      const totalIncome = list
+        .filter(tx => {
+          const d = new Date(tx.date)
+          return d.getMonth() === monthIdx && d.getFullYear() === Number(formData.year) && tx.type === 'income'
+        })
+        .reduce((s, tx) => s + (tx.amount || 0), 0)
+      const totalExpense = list
+        .filter(tx => {
+          const d = new Date(tx.date)
+          return d.getMonth() === monthIdx && d.getFullYear() === Number(formData.year) && tx.type === 'expense'
+        })
+        .reduce((s, tx) => s + (tx.amount || 0), 0)
+      setFormData(prev => ({ ...prev, totalIncome, totalExpense }))
+    } catch (e) {
+      console.error('Generate report error:', e)
+    }
+  }
+
+  const exportCsv = () => {
+    const rows = [
+      ['Month','Year','Income','Expense','Balance'],
+      ...reports.map(r => [r.month, r.year, r.totalIncome, r.totalExpense, r.balance])
+    ]
+    const csv = rows.map(r => r.join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'reports.csv'
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   const handleEdit = (report) => {
     setFormData(report)
     setEditingId(report._id)
@@ -92,6 +131,10 @@ export default function Reports() {
         {loading ? (
           <div style={{ color: '#a7f3d0' }}>Loading...</div>
         ) : (
+          <>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+            <button className="btn" onClick={exportCsv}>Export CSV</button>
+          </div>
           <div className="table-container">
             <table>
               <thead>
@@ -127,6 +170,7 @@ export default function Reports() {
               </tbody>
             </table>
           </div>
+          </>
         )}
 
         {/* Modal */}
@@ -158,6 +202,9 @@ export default function Reports() {
                 <label>Total Expense</label>
                 <input type="number" name="totalExpense" value={formData.totalExpense} onChange={handleChange} required step="0.01" />
               </div>
+              <button type="button" className="btn" onClick={handleGenerateFromTransactions} style={{ width: '100%', marginBottom: 8 }}>
+                Generate from Transactions
+              </button>
               <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
                 Save
               </button>
