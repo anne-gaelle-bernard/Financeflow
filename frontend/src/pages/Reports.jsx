@@ -1,6 +1,27 @@
 import React, { useState, useEffect } from 'react'
 import { getReportsByUser, createReport, updateReport, deleteReport, getTransactionsByUser } from '../services/api'
 import '../styles/main.css'
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Tooltip,
+  Legend,
+} from 'chart.js'
+import { Bar, Line } from 'react-chartjs-2'
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Tooltip,
+  Legend
+)
 
 export default function Reports() {
   const [reports, setReports] = useState([])
@@ -15,6 +36,7 @@ export default function Reports() {
   })
 
   const user = JSON.parse(localStorage.getItem('ff_user') || '{}')
+  const userId = user?._id || user?.userId || null
   const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
   useEffect(() => {
@@ -24,7 +46,7 @@ export default function Reports() {
   const loadReports = async () => {
     setLoading(true)
     try {
-      const res = await getReportsByUser(user.userId)
+      const res = await getReportsByUser(userId)
       setReports(Array.isArray(res) ? res : [])
     } catch (err) {
       console.error('Error loading reports:', err)
@@ -42,7 +64,7 @@ export default function Reports() {
     try {
       const payload = {
         ...formData,
-        userId: user.userId,
+        userId: userId,
         totalIncome: Number(formData.totalIncome),
         totalExpense: Number(formData.totalExpense),
         year: Number(formData.year)
@@ -134,6 +156,34 @@ export default function Reports() {
           <>
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
             <button className="btn" onClick={exportCsv}>Export CSV</button>
+          </div>
+          {/* Charts */}
+          <div className="charts-grid">
+            <div className="chart-card">
+              <h3 style={{ color: '#e8fff6', marginBottom: 8 }}>Income vs Expense</h3>
+              <Bar
+                data={{
+                  labels: reports.map(r => `${r.month} ${r.year}`),
+                  datasets: [
+                    { label: 'Income', data: reports.map(r => r.totalIncome), backgroundColor: '#10b981' },
+                    { label: 'Expense', data: reports.map(r => r.totalExpense), backgroundColor: '#f97373' }
+                  ]
+                }}
+                options={{ responsive: true, maintainAspectRatio: false }}
+              />
+            </div>
+            <div className="chart-card">
+              <h3 style={{ color: '#e8fff6', marginBottom: 8 }}>Balance Over Time</h3>
+              <Line
+                data={{
+                  labels: reports.map(r => `${r.month} ${r.year}`),
+                  datasets: [
+                    { label: 'Balance', data: reports.map(r => r.balance), borderColor: '#22d3ee', backgroundColor: 'rgba(34,211,238,0.15)', tension: 0.2 }
+                  ]
+                }}
+                options={{ responsive: true, maintainAspectRatio: false }}
+              />
+            </div>
           </div>
           <div className="table-container">
             <table>
