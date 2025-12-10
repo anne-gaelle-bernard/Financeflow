@@ -28,10 +28,11 @@ export default function Signup() {
     }
     try {
       const res = await registerUser({ firstName, lastName, email, password })
-      console.log('Register response:', res)
-      if (res?.success && res?.data?.token) {
+      if (res?.success && res?.data?.token && res?.data?.user) {
         setAuthToken(res.data.token)
-        navigate('/login')
+        const user = res.data.user
+        localStorage.setItem('ff_user', JSON.stringify({ userId: user._id, ...user }))
+        navigate('/')
       } else {
         setError(res?.error || res?.message || 'Inscription échouée')
       }

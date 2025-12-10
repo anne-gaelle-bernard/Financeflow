@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const port = process.env.PORT || 3000;
+const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/financeflow';
 const app = express();
 
 // Middleware
@@ -10,7 +11,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // MongoDB Connection
-mongoose.connect('mongodb://localhost:27017/financeflow').then(() => {
+mongoose.connect(mongoUri).then(() => {
     console.log('MongoDB connected successfully');
 }).catch(err => {
     console.log('MongoDB connection error:', err);

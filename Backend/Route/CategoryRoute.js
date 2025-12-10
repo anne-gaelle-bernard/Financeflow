@@ -12,6 +12,9 @@ router.use(verifyToken);
 // Get all categories
 router.get('/', categoryController.getAllCategories);
 
+// Get categories for current authenticated user
+router.get('/me', categoryController.getCategoriesMe);
+
 // Get categories by user ID
 router.get('/user/:userId', categoryController.getCategoriesByUser);
 

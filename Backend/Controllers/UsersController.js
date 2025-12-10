@@ -58,7 +58,8 @@ exports.createUser = async (req, res) => {
             return res.status(400).json({ error: 'Username (or firstName/lastName), email, and password are required' });
         }
         
-        const existingUser = await User.findOne({ $or: [{ email }, { username: usernameToUse }] });
+        const emailLower = (email || '').trim().toLowerCase();
+        const existingUser = await User.findOne({ $or: [{ email: emailLower }, { username: usernameToUse }] });
         if (existingUser) {
             return res.status(400).json({ error: 'User already exists' });
         }
@@ -66,7 +67,7 @@ exports.createUser = async (req, res) => {
             username: usernameToUse, 
             firstName: firstName || usernameToUse.split(' ')[0],
             lastName: lastName || usernameToUse.split(' ')[1] || '',
-            email, 
+            email: emailLower, 
             password 
         });
         await newUser.save();
@@ -151,7 +152,10 @@ exports.loginUser = async (req, res) => {
             return res.status(400).json({ success: false, error: 'Email and password are required' });
         }
         
-        const user = await User.findOne({ email });
+        const identifier = (email || '').trim();
+        const isEmail = identifier.includes('@');
+        const emailLower = identifier.toLowerCase();
+        const user = await User.findOne(isEmail ? { email: emailLower } : { username: identifier });
         if (!user) {
             return res.status(404).json({ success: false, error: 'User not found' });
         }

@@ -80,17 +80,38 @@ exports.getCategoryById = async (req, res) => {
 // Create a new category
 exports.createCategory = async (req, res) => {
     try {
-        const { userId, name, description, color } = req.body;
-        const newCategory = new Category({
-            userId,
-            name,
-            description,
-            color: color || '#000000'
-        });
-        await newCategory.save();
-        res.status(201).json({ message: 'Category created successfully', category: newCategory });
+        const bodyUserId = req.body.userId
+        const authUserId = req.userId
+        const userId = bodyUserId || authUserId
+        const name = (req.body.name || '').trim()
+        const description = req.body.description || ''
+        const color = req.body.color || '#000000'
+
+        if (!userId || !name) {
+            return res.status(400).json({ error: 'userId and name are required' })
+        }
+
+        const exists = await Category.findOne({ userId, name })
+        if (exists) {
+            return res.status(409).json({ error: 'Category already exists for this user' })
+        }
+
+        const newCategory = new Category({ userId, name, description, color })
+        await newCategory.save()
+        res.status(201).json({ message: 'Category created successfully', category: newCategory })
     } catch (error) {
-        res.status(500).json({ error: 'Error creating category' });
+        res.status(500).json({ error: 'Error creating category' })
+    }
+};
+
+// Get categories for current authenticated user
+exports.getCategoriesMe = async (req, res) => {
+    try {
+        if (!req.userId) return res.status(401).json({ error: 'Unauthorized' })
+        const categories = await Category.find({ userId: req.userId })
+        res.status(200).json(categories)
+    } catch (error) {
+        res.status(500).json({ error: 'Error fetching categories' })
     }
 };
 

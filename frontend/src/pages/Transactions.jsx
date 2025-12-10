@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { getTransactionsByUser, createTransaction, updateTransaction, deleteTransaction, getCategoriesByUser, getAllCategories, initUserCategories } from '../services/api'
 import CategoryList from '../components/CategoryList'
 import CategorySelect from '../components/CategorySelect'
+import InlineCategoryCreator from '../components/InlineCategoryCreator'
 import '../styles/main.css'
 
 export default function Transactions() {
@@ -13,11 +14,13 @@ export default function Transactions() {
   const [showModal, setShowModal] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [errorMsg, setErrorMsg] = useState('')
+  const [errors, setErrors] = useState({})
   const [formData, setFormData] = useState({
     categoryId: '',
     amount: '',
     type: 'expense',
-    description: ''
+    description: '',
+    date: new Date().toISOString().slice(0,10)
   })
 
   const user = JSON.parse(localStorage.getItem('ff_user') || '{}')
@@ -45,6 +48,9 @@ export default function Transactions() {
         }
       }
       setCategories(cats)
+      if (!formData.categoryId && cats[0]?._id) {
+        setFormData(prev => ({ ...prev, categoryId: cats[0]._id }))
+      }
     } catch (err) {
       console.error('Error loading data:', err)
     }
@@ -80,6 +86,15 @@ export default function Transactions() {
     }
   }, [])
 
+  useEffect(() => {
+    if (showModal) {
+      ensureCategories()
+      if (!formData.categoryId && categories[0]?._id) {
+        setFormData(prev => ({ ...prev, categoryId: categories[0]._id }))
+      }
+    }
+  }, [showModal])
+
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
@@ -89,6 +104,14 @@ export default function Transactions() {
     e.preventDefault()
     try {
       setErrorMsg('')
+      const v = {}
+      if (!formData.categoryId) v.categoryId = 'Category required'
+      if (!formData.type) v.type = 'Type required'
+      if (!formData.amount || Number(formData.amount) <= 0) v.amount = 'Amount must be > 0'
+      if (!formData.description) v.description = 'Description required'
+      if (!formData.date) v.date = 'Date required'
+      setErrors(v)
+      if (Object.keys(v).length > 0) return
       const payload = {
         ...formData,
         userId: user.userId,
@@ -101,7 +124,7 @@ export default function Transactions() {
         await createTransaction(payload)
       }
       setActiveCategory(null)
-      setFormData({ categoryId: '', amount: '', type: 'expense', description: '' })
+      setFormData({ categoryId: '', amount: '', type: 'expense', description: '', date: new Date().toISOString().slice(0,10) })
       setEditingId(null)
       setShowModal(false)
       loadData()
@@ -117,7 +140,8 @@ export default function Transactions() {
       categoryId: cid || '',
       amount: tx.amount?.toString() || '',
       type: tx.type || 'expense',
-      description: tx.description || ''
+      description: tx.description || '',
+      date: tx.date ? new Date(tx.date).toISOString().slice(0,10) : new Date().toISOString().slice(0,10)
     })
     setEditingId(tx._id)
     setShowModal(true)
@@ -249,6 +273,16 @@ export default function Transactions() {
                 onChange={handleChange}
                 label="Category"
               />
+              {errors.categoryId && (
+                <div className="error-message" style={{ marginBottom: 8 }}>{errors.categoryId}</div>
+              )}
+              <InlineCategoryCreator
+                userId={user.userId}
+                onCreated={(cat) => {
+                  setCategories(prev => [...prev, cat])
+                  setFormData(prev => ({ ...prev, categoryId: cat._id }))
+                }}
+              />
               {categories.length === 0 && user?.userId && (
                 <div style={{ margin: '8px 0 12px 0' }}>
                   <button type="button" className="btn" onClick={ensureCategories}>Create default categories</button>
@@ -266,16 +300,32 @@ export default function Transactions() {
                   <option value="income">Income</option>
                 </select>
               </div>
+              {errors.type && (
+                <div className="error-message" style={{ marginBottom: 8 }}>{errors.type}</div>
+              )}
               <div className="form-group">
                 <label>Amount</label>
                 <input type="number" name="amount" value={formData.amount} onChange={handleChange} required step="0.01" />
               </div>
+              {errors.amount && (
+                <div className="error-message" style={{ marginBottom: 8 }}>{errors.amount}</div>
+              )}
+              <div className="form-group">
+                <label>Date</label>
+                <input type="date" name="date" value={formData.date} onChange={handleChange} required />
+              </div>
+              {errors.date && (
+                <div className="error-message" style={{ marginBottom: 8 }}>{errors.date}</div>
+              )}
               <div className="form-group">
                 <label>Description</label>
                 <input type="text" name="description" value={formData.description} onChange={handleChange} required />
               </div>
+              {errors.description && (
+                <div className="error-message" style={{ marginBottom: 8 }}>{errors.description}</div>
+              )}
               <button type="submit" className="btn btn-primary" style={{ width: '100%' }}
-                disabled={!formData.categoryId || !formData.type || !formData.amount || Number(formData.amount) <= 0 || !formData.description}
+                disabled={!formData.categoryId || !formData.type || !formData.amount || Number(formData.amount) <= 0 || !formData.description || !formData.date}
               >
                 Save
               </button>

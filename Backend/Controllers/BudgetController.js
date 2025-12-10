@@ -41,16 +41,15 @@ exports.getBudgetById = async (req, res) => {
 // Create a new budget
 exports.createBudget = async (req, res) => {
     try {
-        const { userId, categoryId, amount, month, year } = req.body;
-        const newBudget = new Budget({
-            userId,
-            categoryId,
-            amount,
-            month,
-            year
-        });
+        const userId = req.body.userId || req.userId;
+        const { categoryId, amount, month, year } = req.body;
+        if (!userId || !categoryId || !amount || !month || !year) {
+            return res.status(400).json({ error: 'Missing required fields' });
+        }
+        const newBudget = new Budget({ userId, categoryId, amount, month, year });
         await newBudget.save();
-        res.status(201).json({ message: 'Budget created successfully', budget: newBudget });
+        const populated = await Budget.findById(newBudget._id).populate('categoryId', 'name');
+        res.status(201).json({ message: 'Budget created successfully', budget: populated });
     } catch (error) {
         res.status(500).json({ error: 'Error creating budget' });
     }

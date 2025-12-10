@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { getBudgetsByUser, createBudget, updateBudget, deleteBudget, getCategoriesByUser, getAllCategories, initUserCategories } from '../services/api'
 import CategoryList from '../components/CategoryList'
 import CategorySelect from '../components/CategorySelect'
+import InlineCategoryCreator from '../components/InlineCategoryCreator'
 import '../styles/main.css'
 
 export default function Budgets() {
@@ -14,6 +15,7 @@ export default function Budgets() {
   const [showModal, setShowModal] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [errorMsg, setErrorMsg] = useState('')
+  const [errors, setErrors] = useState({})
   const [formData, setFormData] = useState({
     categoryId: '',
     amount: '',
@@ -27,6 +29,15 @@ export default function Budgets() {
   useEffect(() => {
     loadData()
   }, [])
+
+  useEffect(() => {
+    if (showModal) {
+      ensureCategories()
+      if (!formData.categoryId && categories[0]?._id) {
+        setFormData(prev => ({ ...prev, categoryId: categories[0]._id }))
+      }
+    }
+  }, [showModal])
 
   const loadData = async () => {
     setLoading(true)
@@ -47,6 +58,9 @@ export default function Budgets() {
         }
       }
       setCategories(cats)
+      if (!formData.categoryId && cats[0]?._id) {
+        setFormData(prev => ({ ...prev, categoryId: cats[0]._id }))
+      }
     } catch (err) {
       console.error('Error loading data:', err)
     }
@@ -78,6 +92,13 @@ export default function Budgets() {
     e.preventDefault()
     try {
       setErrorMsg('')
+      const v = {}
+      if (!formData.categoryId) v.categoryId = 'Category required'
+      if (!formData.month) v.month = 'Month required'
+      if (!formData.year) v.year = 'Year required'
+      if (!formData.amount || Number(formData.amount) <= 0) v.amount = 'Amount must be > 0'
+      setErrors(v)
+      if (Object.keys(v).length > 0) return
       const payload = {
         ...formData,
         userId: user.userId,
@@ -218,6 +239,16 @@ export default function Budgets() {
                 onChange={handleChange}
                 label="Category"
               />
+              <InlineCategoryCreator
+                userId={user.userId}
+                onCreated={(cat) => {
+                  setCategories(prev => [...prev, cat])
+                  setFormData(prev => ({ ...prev, categoryId: cat._id }))
+                }}
+              />
+              {errors.categoryId && (
+                <div className="error-message" style={{ marginBottom: 8 }}>{errors.categoryId}</div>
+              )}
               {categories.length === 0 && user?.userId && (
                 <div style={{ margin: '8px 0 12px 0' }}>
                   <button type="button" className="btn" onClick={ensureCategories}>Create default categories</button>
@@ -237,14 +268,23 @@ export default function Budgets() {
                   ))}
                 </select>
               </div>
+              {errors.month && (
+                <div className="error-message" style={{ marginBottom: 8 }}>{errors.month}</div>
+              )}
               <div className="form-group">
                 <label>Year</label>
                 <input type="number" name="year" value={formData.year} onChange={handleChange} required />
               </div>
+              {errors.year && (
+                <div className="error-message" style={{ marginBottom: 8 }}>{errors.year}</div>
+              )}
               <div className="form-group">
                 <label>Amount</label>
                 <input type="number" name="amount" value={formData.amount} onChange={handleChange} required step="0.01" />
               </div>
+              {errors.amount && (
+                <div className="error-message" style={{ marginBottom: 8 }}>{errors.amount}</div>
+              )}
               <button type="submit" className="btn btn-primary" style={{ width: '100%' }}
                 disabled={!formData.categoryId || !formData.month || !formData.year || !formData.amount || Number(formData.amount) <= 0}
               >
