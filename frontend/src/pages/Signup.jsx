@@ -31,9 +31,11 @@ export default function Signup() {
       setLoading(true)
       const res = await registerUser({ firstName, lastName, email, password })
       if (res?.success && res?.data?.token && res?.data?.user) {
-        setAuthToken(res.data.token)
         const user = res.data.user
-        localStorage.setItem('ff_user', JSON.stringify({ userId: user._id, ...user }))
+        const token = res.data.token
+        localStorage.setItem('ff_user', JSON.stringify({ _id: user._id, userId: user._id, ...user }))
+        localStorage.setItem('ff_token', token)
+        setAuthToken(token)
         navigate('/')
       } else {
         setError(res?.error || res?.message || 'Inscription échouée')

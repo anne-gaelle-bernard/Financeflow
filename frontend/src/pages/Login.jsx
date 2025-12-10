@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { loginUser } from '../services/api'
+import { loginUser, setAuthToken } from '../services/api'
 import { useNavigate } from 'react-router-dom'
 
 export default function Login() {
@@ -21,7 +21,10 @@ export default function Login() {
       const res = await loginUser({ email, password })
       if (res?.success && res?.data?.token && res?.data?.user) {
         const user = res.data.user
-        localStorage.setItem('ff_user', JSON.stringify({ userId: user._id, ...user }))
+        const token = res.data.token
+        localStorage.setItem('ff_user', JSON.stringify({ _id: user._id, userId: user._id, ...user }))
+        localStorage.setItem('ff_token', token)
+        setAuthToken(token)
         navigate('/')
       } else {
         setError(res?.error || res?.message || 'Connexion échouée')

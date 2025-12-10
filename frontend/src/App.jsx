@@ -1,5 +1,5 @@
-import React from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
+import React, { useState, useEffect } from 'react'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import ProtectedRoute from './routes/ProtectedRoute'
 import Header from './components/Header'
 import Home from './pages/Home'
@@ -12,11 +12,19 @@ import Reports from './pages/Reports'
 import Settings from './pages/Settings'
 
 export default function App() {
-  const isLoggedIn = typeof window !== 'undefined' && !!localStorage.getItem('ff_token')
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const location = useLocation()
+
+  useEffect(() => {
+    const token = localStorage.getItem('ff_token')
+    setIsLoggedIn(!!token)
+  }, [location])
+
+  const showHeader = isLoggedIn && location.pathname !== '/login' && location.pathname !== '/signup'
 
   return (
     <>
-      {isLoggedIn && <Header />}
+      {showHeader && <Header />}
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
