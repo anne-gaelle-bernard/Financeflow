@@ -10,6 +10,7 @@ export default function Signup() {
   const [password, setPassword] = useState('')
   const [passwordConfirm, setPasswordConfirm] = useState('')
   const [error, setError] = useState(null)
+  const [loading, setLoading] = useState(false)
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -27,6 +28,7 @@ export default function Signup() {
       return
     }
     try {
+      setLoading(true)
       const res = await registerUser({ firstName, lastName, email, password })
       if (res?.success && res?.data?.token && res?.data?.user) {
         setAuthToken(res.data.token)
@@ -40,6 +42,7 @@ export default function Signup() {
       console.error('Register error:', e)
       setError(e.response?.data?.error || 'Inscription impossible')
     }
+    setLoading(false)
   }
 
   const primary = '#10b981'
@@ -80,7 +83,7 @@ export default function Signup() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr', alignItems: 'center', gap: 10, background: '#0b3a33', border: border, borderRadius: 12, padding: '10px 12px' }}>
             <input type="password" placeholder="••••••••" value={passwordConfirm} onChange={(e) => setPasswordConfirm(e.target.value)} style={{ background: 'transparent', border: 'none', outline: 'none', color: '#e8fff6' }} />
           </div>
-          <button type="submit" style={{ padding: 14, borderRadius: 12, background: 'linear-gradient(135deg,#22d3ee,#10b981)', color: '#04221d', fontWeight: 800 }}>Créer un compte →</button>
+          <button type="submit" disabled={loading} style={{ padding: 14, borderRadius: 12, background: 'linear-gradient(135deg,#22d3ee,#10b981)', color: '#04221d', fontWeight: 800 }}>{loading ? 'Création…' : 'Créer un compte →'}</button>
           {error && <div style={{ color: '#fecaca', background: 'rgba(120,0,0,0.2)', borderRadius: 8, padding: '8px 10px', fontSize: 14 }}>{error}</div>}
         </form>
       </div>

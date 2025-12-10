@@ -7,15 +7,17 @@ export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState(null)
+  const [loading, setLoading] = useState(false)
 
   async function handleSubmit(e) {
     e.preventDefault()
     setError(null)
     try {
       if (!email || !password) {
-        setError('Email et mot de passe requis')
+        setError("Email ou nom d’utilisateur et mot de passe requis")
         return
       }
+      setLoading(true)
       const res = await loginUser({ email, password })
       if (res?.success && res?.data?.token && res?.data?.user) {
         const user = res.data.user
@@ -28,6 +30,7 @@ export default function Login() {
       console.error('Login error:', e)
       setError(e.response?.data?.error || 'Connexion impossible')
     }
+    setLoading(false)
   }
 
   const primary = '#10b981'
@@ -49,16 +52,16 @@ export default function Login() {
           <button style={{ padding: 12, borderRadius: 10, background: '#0b3a33', color: '#7dd3fc', fontWeight: 700, border }} onClick={() => navigate('/signup')}>Inscription</button>
         </div>
         <form style={{ display: 'grid', gap: 12 }} onSubmit={handleSubmit}>
-          <label style={{ fontSize: 13, color: muted }}>Email</label>
+          <label style={{ fontSize: 13, color: muted }}>Email ou nom d’utilisateur</label>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr', alignItems: 'center', gap: 10, background: '#0b3a33', border: border, borderRadius: 12, padding: '10px 12px' }}>
-            <input type="email" placeholder="votre@email.com" value={email} onChange={(e) => setEmail(e.target.value)} style={{ background: 'transparent', border: 'none', outline: 'none', color: '#e8fff6' }} />
+            <input type="text" placeholder="email@example.com ou username" value={email} onChange={(e) => setEmail(e.target.value)} style={{ background: 'transparent', border: 'none', outline: 'none', color: '#e8fff6' }} />
           </div>
           <label style={{ fontSize: 13, color: muted }}>Mot de passe</label>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr', alignItems: 'center', gap: 10, background: '#0b3a33', border: border, borderRadius: 12, padding: '10px 12px' }}>
             <input type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} style={{ background: 'transparent', border: 'none', outline: 'none', color: '#e8fff6' }} />
           </div>
           <div style={{ textAlign: 'right', fontSize: 12, color: muted }}>Mot de passe oublié ?</div>
-          <button type="submit" style={{ padding: 14, borderRadius: 12, background: 'linear-gradient(135deg,#22d3ee,#10b981)', color: '#04221d', fontWeight: 800 }}>Se connecter →</button>
+          <button type="submit" disabled={loading} style={{ padding: 14, borderRadius: 12, background: 'linear-gradient(135deg,#22d3ee,#10b981)', color: '#04221d', fontWeight: 800 }}>{loading ? 'Connexion…' : 'Se connecter →'}</button>
           {error && <div style={{ color: '#fecaca', background: 'rgba(120,0,0,0.2)', borderRadius: 8, padding: '8px 10px', fontSize: 14 }}>{error}</div>}
         </form>
       </div>

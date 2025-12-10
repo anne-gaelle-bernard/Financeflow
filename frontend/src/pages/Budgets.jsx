@@ -16,6 +16,7 @@ export default function Budgets() {
   const [editingId, setEditingId] = useState(null)
   const [errorMsg, setErrorMsg] = useState('')
   const [errors, setErrors] = useState({})
+  const [saving, setSaving] = useState(false)
   const [formData, setFormData] = useState({
     categoryId: '',
     amount: '',
@@ -92,13 +93,14 @@ export default function Budgets() {
     e.preventDefault()
     try {
       setErrorMsg('')
+      setSaving(true)
       const v = {}
       if (!formData.categoryId) v.categoryId = 'Category required'
       if (!formData.month) v.month = 'Month required'
       if (!formData.year) v.year = 'Year required'
       if (!formData.amount || Number(formData.amount) <= 0) v.amount = 'Amount must be > 0'
       setErrors(v)
-      if (Object.keys(v).length > 0) return
+      if (Object.keys(v).length > 0) { setSaving(false); return }
       const payload = {
         ...formData,
         userId: user.userId,
@@ -119,6 +121,7 @@ export default function Budgets() {
       console.error('Error saving budget:', err)
       setErrorMsg(err.response?.data?.error || 'Failed to save budget')
     }
+    setSaving(false)
   }
 
   const handleEdit = (budget) => {
@@ -286,9 +289,9 @@ export default function Budgets() {
                 <div className="error-message" style={{ marginBottom: 8 }}>{errors.amount}</div>
               )}
               <button type="submit" className="btn btn-primary" style={{ width: '100%' }}
-                disabled={!formData.categoryId || !formData.month || !formData.year || !formData.amount || Number(formData.amount) <= 0}
+                disabled={saving || !formData.categoryId || !formData.month || !formData.year || !formData.amount || Number(formData.amount) <= 0}
               >
-                Save
+                {saving ? 'Saving…' : 'Save'}
               </button>
             </form>
           </div>
