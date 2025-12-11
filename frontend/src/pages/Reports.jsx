@@ -143,10 +143,10 @@ export default function Reports() {
   return (
     <div className="main-layout">
       <div className="content">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-          <h1 style={{ color: '#e8fff6', margin: 0 }}>Reports</h1>
+        <div className="page-header">
+          <h1>Rapports</h1>
           <button className="btn btn-primary" onClick={() => setShowModal(true)}>
-            + New Report
+            + Nouveau rapport
           </button>
         </div>
 
@@ -154,13 +154,15 @@ export default function Reports() {
           <div style={{ color: '#a7f3d0' }}>Loading...</div>
         ) : (
           <>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
-            <button className="btn" onClick={exportCsv}>Export CSV</button>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
+            <button className="btn" onClick={exportCsv} style={{ width: '100%', maxWidth: '200px' }}>
+              📊 Exporter CSV
+            </button>
           </div>
           {/* Charts */}
           <div className="charts-grid">
             <div className="chart-card">
-              <h3 style={{ color: '#e8fff6', marginBottom: 8 }}>Income vs Expense</h3>
+              <h3>Revenus vs Dépenses</h3>
               <Bar
                 data={{
                   labels: reports.map(r => `${r.month} ${r.year}`),
@@ -173,7 +175,7 @@ export default function Reports() {
               />
             </div>
             <div className="chart-card">
-              <h3 style={{ color: '#e8fff6', marginBottom: 8 }}>Balance Over Time</h3>
+              <h3>Solde au fil du temps</h3>
               <Line
                 data={{
                   labels: reports.map(r => `${r.month} ${r.year}`),
@@ -189,11 +191,11 @@ export default function Reports() {
             <table>
               <thead>
                 <tr>
-                  <th>Month</th>
-                  <th>Year</th>
-                  <th>Income</th>
-                  <th>Expense</th>
-                  <th>Balance</th>
+                  <th>Mois</th>
+                  <th>Année</th>
+                  <th>Revenus</th>
+                  <th>Dépenses</th>
+                  <th>Solde</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -208,12 +210,14 @@ export default function Reports() {
                       ${report.balance.toFixed(2)}
                     </td>
                     <td>
-                      <button className="btn btn-small" style={{ marginRight: 8 }} onClick={() => handleEdit(report)}>
-                        Edit
-                      </button>
-                      <button className="btn btn-danger btn-small" onClick={() => handleDelete(report._id)}>
-                        Delete
-                      </button>
+                      <div className="action-buttons">
+                        <button className="btn btn-small" onClick={() => handleEdit(report)}>
+                          Modifier
+                        </button>
+                        <button className="btn btn-danger btn-small" onClick={() => handleDelete(report._id)}>
+                          Supprimer
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -227,7 +231,7 @@ export default function Reports() {
         <div className={`modal ${showModal ? 'show' : ''}`} onClick={() => setShowModal(false)}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>{editingId ? 'Edit' : 'New'} Report</h2>
+              <h2>{editingId ? 'Modifier' : 'Nouveau'} Rapport</h2>
               <button className="close-btn" onClick={() => setShowModal(false)}>×</button>
             </div>
             <form onSubmit={handleSubmit}>

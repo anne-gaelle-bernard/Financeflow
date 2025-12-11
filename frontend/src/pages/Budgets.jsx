@@ -150,30 +150,35 @@ export default function Budgets() {
   return (
     <div className="main-layout">
       <div className="content">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-          <h1 style={{ color: '#e8fff6', margin: 0 }}>Budgets</h1>
+        <div className="page-header">
+          <h1>Budgets</h1>
           <button className="btn btn-primary" onClick={() => setShowModal(true)}>
-            + New Budget
+            + Nouveau budget
           </button>
         </div>
 
         <CategoryList categories={categories} selectedId={activeCategory} onSelect={setActiveCategory} />
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 8, marginBottom: 12 }}>
-          <div className="form-group">
-            <label>Filter Month</label>
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', 
+          gap: 10, 
+          marginBottom: 16 
+        }}>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label>Filtrer par mois</label>
             <select value={filterMonth} onChange={(e) => setFilterMonth(e.target.value)}>
-              <option value="">All</option>
+              <option value="">Tous</option>
               {months.map(m => <option key={m} value={m}>{m}</option>)}
             </select>
           </div>
-          <div className="form-group">
-            <label>Filter Year</label>
-            <input type="number" value={filterYear} onChange={(e) => setFilterYear(e.target.value)} placeholder="All" />
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label>Filtrer par année</label>
+            <input type="number" value={filterYear} onChange={(e) => setFilterYear(e.target.value)} placeholder="Tous" />
           </div>
         </div>
-        <div className="dashboard-cards">
+        <div className="dashboard-cards" style={{ gridTemplateColumns: '1fr' }}>
           <div className="dashboard-card">
-            <div className="dashboard-card-title">Total Budget</div>
+            <div className="dashboard-card-title">Budget Total</div>
             <div className="dashboard-card-value">${budgets
               .filter(b => {
                 const byCat = !activeCategory || (typeof b.categoryId === 'object' ? b.categoryId?._id : b.categoryId) === activeCategory
@@ -192,10 +197,10 @@ export default function Budgets() {
             <table>
               <thead>
                 <tr>
-                  <th>Category</th>
-                  <th>Month</th>
-                  <th>Year</th>
-                  <th>Amount</th>
+                  <th>Catégorie</th>
+                  <th>Mois</th>
+                  <th>Année</th>
+                  <th>Montant</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -214,12 +219,14 @@ export default function Budgets() {
                     <td>{budget.year}</td>
                     <td>${budget.amount.toFixed(2)}</td>
                     <td>
-                      <button className="btn btn-small" style={{ marginRight: 8 }} onClick={() => handleEdit(budget)}>
-                        Edit
-                      </button>
-                      <button className="btn btn-danger btn-small" onClick={() => handleDelete(budget._id)}>
-                        Delete
-                      </button>
+                      <div className="action-buttons">
+                        <button className="btn btn-small" onClick={() => handleEdit(budget)}>
+                          Modifier
+                        </button>
+                        <button className="btn btn-danger btn-small" onClick={() => handleDelete(budget._id)}>
+                          Supprimer
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

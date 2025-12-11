@@ -167,22 +167,22 @@ export default function Transactions() {
   return (
     <div className="main-layout">
       <div className="content">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-          <h1 style={{ color: '#e8fff6', margin: 0 }}>Transactions</h1>
+        <div className="page-header">
+          <h1>Transactions</h1>
           <button className="btn btn-primary" onClick={() => setShowModal(true)}>
-            + New Transaction
+            + Nouvelle transaction
           </button>
         </div>
 
         <CategoryList categories={categories} selectedId={activeCategory} onSelect={setActiveCategory} />
         <div className="category-list" style={{ marginTop: 8 }}>
-          <button className={`category-item ${activeType === 'all' ? 'active' : ''}`} onClick={() => setActiveType('all')}>All</button>
-          <button className={`category-item ${activeType === 'income' ? 'active' : ''}`} onClick={() => setActiveType('income')}>Income</button>
-          <button className={`category-item ${activeType === 'expense' ? 'active' : ''}`} onClick={() => setActiveType('expense')}>Expense</button>
+          <button className={`category-item ${activeType === 'all' ? 'active' : ''}`} onClick={() => setActiveType('all')}>Tout</button>
+          <button className={`category-item ${activeType === 'income' ? 'active' : ''}`} onClick={() => setActiveType('income')}>Revenus</button>
+          <button className={`category-item ${activeType === 'expense' ? 'active' : ''}`} onClick={() => setActiveType('expense')}>Dépenses</button>
         </div>
         <div className="dashboard-cards">
           <div className="dashboard-card">
-            <div className="dashboard-card-title">Income</div>
+            <div className="dashboard-card-title">Revenus</div>
             <div className="dashboard-card-value" style={{ color: '#86efac' }}>${transactions
               .filter(tx => {
                 const byCat = !activeCategory || (typeof tx.categoryId === 'object' ? tx.categoryId?._id : tx.categoryId) === activeCategory
@@ -194,7 +194,7 @@ export default function Transactions() {
               .toFixed(2)}</div>
           </div>
           <div className="dashboard-card">
-            <div className="dashboard-card-title">Expenses</div>
+            <div className="dashboard-card-title">Dépenses</div>
             <div className="dashboard-card-value" style={{ color: '#fecaca' }}>${transactions
               .filter(tx => {
                 const byCat = !activeCategory || (typeof tx.categoryId === 'object' ? tx.categoryId?._id : tx.categoryId) === activeCategory
@@ -227,9 +227,9 @@ export default function Transactions() {
               <thead>
                 <tr>
                   <th>Date</th>
-                  <th>Category</th>
+                  <th>Catégorie</th>
                   <th>Type</th>
-                  <th>Amount</th>
+                  <th>Montant</th>
                   <th>Description</th>
                   <th>Actions</th>
                 </tr>
@@ -249,14 +249,16 @@ export default function Transactions() {
                       {tx.type}
                     </td>
                     <td>${tx.amount.toFixed(2)}</td>
-                    <td>{tx.description}</td>
+                    <td className="text-truncate">{tx.description}</td>
                     <td>
-                      <button className="btn btn-small" style={{ marginRight: 8 }} onClick={() => handleEdit(tx)}>
-                        Edit
-                      </button>
-                      <button className="btn btn-danger btn-small" onClick={() => handleDelete(tx._id)}>
-                        Delete
-                      </button>
+                      <div className="action-buttons">
+                        <button className="btn btn-small" onClick={() => handleEdit(tx)}>
+                          Modifier
+                        </button>
+                        <button className="btn btn-danger btn-small" onClick={() => handleDelete(tx._id)}>
+                          Supprimer
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -269,7 +271,7 @@ export default function Transactions() {
         <div className={`modal ${showModal ? 'show' : ''}`} onClick={() => setShowModal(false)}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>{editingId ? 'Edit' : 'New'} Transaction</h2>
+              <h2>{editingId ? 'Modifier' : 'Nouvelle'} Transaction</h2>
               <button className="close-btn" onClick={() => setShowModal(false)}>×</button>
             </div>
             <form onSubmit={handleSubmit}>
