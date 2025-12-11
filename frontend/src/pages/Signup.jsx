@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { registerUser, setAuthToken } from '../services/api'
 import { useNavigate } from 'react-router-dom'
+import Logo from '../components/Logo'
+import '../styles/main.css'
 
 export default function Signup() {
   const navigate = useNavigate()
@@ -47,49 +49,109 @@ export default function Signup() {
     setLoading(false)
   }
 
-  const primary = '#10b981'
-  const cardBg = 'rgba(20, 44, 40, 0.75)'
-  const border = '1px solid rgba(255,255,255,0.08)'
-  const muted = '#94a3b8'
-
   return (
-    <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: 'radial-gradient(80% 80% at 80% 80%, #0d3b34 0%, #06231f 70%)', padding: 24 }}>
-      <div style={{ textAlign: 'center', marginBottom: 20 }}>
-        <div style={{ width: 64, height: 64, borderRadius: 18, background: 'linear-gradient(135deg,#0ea5e9,#10b981)', boxShadow: '0 0 30px rgba(16,185,129,0.35)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 24 }}></div>
-        <div style={{ fontSize: 36, fontWeight: 800, color: '#e8fff6', marginTop: 12 }}>FinanceFlow</div>
-        <div style={{ color: '#a7f3d0', fontSize: 14 }}>Créer votre compte</div>
-      </div>
-      <div style={{ width: 460, maxWidth: '95vw', background: cardBg, border: border, borderRadius: 16, boxShadow: '0 20px 40px rgba(0,0,0,0.35)', padding: 24 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 16 }}>
-          <button style={{ padding: 12, borderRadius: 10, background: '#0b3a33', color: '#7dd3fc', fontWeight: 700, border }} onClick={() => navigate('/login')}>Connexion</button>
-          <button style={{ padding: 12, borderRadius: 10, background: 'linear-gradient(135deg,#14b8a6,#10b981)', color: '#0b1f1b', fontWeight: 800 }} onClick={() => navigate('/signup')}>Inscription</button>
+    <div className="auth-container">
+      <div style={{ textAlign: 'center', marginBottom: 24 }}>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
+          <Logo size="large" variant="default" />
         </div>
-        <form style={{ display: 'grid', gap: 12 }} onSubmit={handleSubmit}>
-          <label style={{ fontSize: 13, color: muted }}>Prénom</label>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr', alignItems: 'center', gap: 10, background: '#0b3a33', border: border, borderRadius: 12, padding: '10px 12px' }}>
-            <input type="text" placeholder="Prénom" value={firstName} onChange={(e) => setFirstName(e.target.value)} style={{ background: 'transparent', border: 'none', outline: 'none', color: '#e8fff6' }} />
+        <p style={{ color: '#a7f3d0', fontSize: 14, margin: 0 }}>Créez votre compte</p>
+      </div>
+      
+      <div className="auth-card">
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 16 }}>
+          <button 
+            style={{ 
+              padding: 12, 
+              borderRadius: 10, 
+              background: '#0b3a33', 
+              color: '#7dd3fc', 
+              fontWeight: 700, 
+              border: '1px solid rgba(255,255,255,0.08)',
+              cursor: 'pointer',
+              minHeight: 44
+            }} 
+            onClick={() => navigate('/login')}
+          >
+            Connexion
+          </button>
+          <button 
+            className="btn btn-primary" 
+            style={{ padding: 12, width: '100%' }}
+          >
+            Inscription
+          </button>
+        </div>
+        
+        {error && <div className="error-message">{error}</div>}
+        
+        <form onSubmit={handleSubmit}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
+            <div className="form-group" style={{ marginBottom: 0 }}>
+              <label>Prénom</label>
+              <input 
+                type="text" 
+                placeholder="Jean" 
+                value={firstName} 
+                onChange={(e) => setFirstName(e.target.value)} 
+              />
+            </div>
+            
+            <div className="form-group" style={{ marginBottom: 0 }}>
+              <label>Nom</label>
+              <input 
+                type="text" 
+                placeholder="Dupont" 
+                value={lastName} 
+                onChange={(e) => setLastName(e.target.value)} 
+              />
+            </div>
           </div>
-          <label style={{ fontSize: 13, color: muted }}>Nom</label>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr', alignItems: 'center', gap: 10, background: '#0b3a33', border: border, borderRadius: 12, padding: '10px 12px' }}>
-            <input type="text" placeholder="Nom" value={lastName} onChange={(e) => setLastName(e.target.value)} style={{ background: 'transparent', border: 'none', outline: 'none', color: '#e8fff6' }} />
+          
+          <div className="form-group">
+            <label>Email</label>
+            <input 
+              type="email" 
+              placeholder="jean.dupont@example.com" 
+              value={email} 
+              onChange={(e) => setEmail(e.target.value)} 
+            />
           </div>
-          <label style={{ fontSize: 13, color: muted }}>Email</label>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr', alignItems: 'center', gap: 10, background: '#0b3a33', border: border, borderRadius: 12, padding: '10px 12px' }}>
-            <input type="email" placeholder="email@example.com" value={email} onChange={(e) => setEmail(e.target.value)} style={{ background: 'transparent', border: 'none', outline: 'none', color: '#e8fff6' }} />
+          
+          <div className="form-group">
+            <label>Mot de passe</label>
+            <input 
+              type="password" 
+              placeholder="••••••••" 
+              value={password} 
+              onChange={(e) => setPassword(e.target.value)} 
+            />
           </div>
-          <label style={{ fontSize: 13, color: muted }}>Mot de passe</label>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr', alignItems: 'center', gap: 10, background: '#0b3a33', border: border, borderRadius: 12, padding: '10px 12px' }}>
-            <input type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} style={{ background: 'transparent', border: 'none', outline: 'none', color: '#e8fff6' }} />
+          
+          <div className="form-group">
+            <label>Confirmer le mot de passe</label>
+            <input 
+              type="password" 
+              placeholder="••••••••" 
+              value={passwordConfirm} 
+              onChange={(e) => setPasswordConfirm(e.target.value)} 
+            />
           </div>
-          <label style={{ fontSize: 13, color: muted }}>Confirmation du mot de passe</label>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr', alignItems: 'center', gap: 10, background: '#0b3a33', border: border, borderRadius: 12, padding: '10px 12px' }}>
-            <input type="password" placeholder="••••••••" value={passwordConfirm} onChange={(e) => setPasswordConfirm(e.target.value)} style={{ background: 'transparent', border: 'none', outline: 'none', color: '#e8fff6' }} />
-          </div>
-          <button type="submit" disabled={loading} style={{ padding: 14, borderRadius: 12, background: 'linear-gradient(135deg,#22d3ee,#10b981)', color: '#04221d', fontWeight: 800 }}>{loading ? 'Création…' : 'Créer un compte →'}</button>
-          {error && <div style={{ color: '#fecaca', background: 'rgba(120,0,0,0.2)', borderRadius: 8, padding: '8px 10px', fontSize: 14 }}>{error}</div>}
+          
+          <button type="submit" disabled={loading} style={{ width: '100%' }}>
+            {loading ? 'Inscription…' : 'Créer mon compte →'}
+          </button>
         </form>
       </div>
-      <div style={{ position: 'fixed', bottom: 20, color: '#7dd3fc', fontSize: 12 }}>© 2024 FinanceFlow • </div>
+      
+      <div style={{ 
+        marginTop: 20, 
+        color: '#7dd3fc', 
+        fontSize: 12, 
+        textAlign: 'center' 
+      }}>
+        © 2024 FinanceFlow • Sécurisé et fiable
+      </div>
     </div>
   )
 }

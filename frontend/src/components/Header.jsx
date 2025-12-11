@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { setAuthToken } from '../services/api'
+import Logo from './Logo'
 
 export default function Header() {
   const navigate = useNavigate()
@@ -37,92 +38,170 @@ export default function Header() {
     <header style={{
       background: 'rgba(20, 44, 40, 0.5)',
       borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-      padding: '16px 24px',
+      padding: isMobile ? '12px 16px' : '16px 24px',
       display: 'grid',
       gridTemplateColumns: isMobile ? '1fr auto' : '1fr 1fr',
       alignItems: 'center',
       position: 'sticky',
       top: 0,
-      zIndex: 100
+      zIndex: 100,
+      backdropFilter: 'blur(10px)'
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 16, justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <svg
-            className="w-8 h-8"
-            viewBox="0 0 64 64"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <defs>
-              <linearGradient id="grad1" x1="0" x2="1">
-                <stop offset="0%" stopColor="#22d3ee" />
-                <stop offset="100%" stopColor="#06b6d4" />
-              </linearGradient>
-            </defs>
-
-            <circle cx="32" cy="32" r="28" fill="url(#grad1)" opacity="0.15" />
-            <rect x="18" y="30" width="6" height="14" rx="1.5" fill="url(#grad1)" />
-            <rect x="28" y="22" width="6" height="22" rx="1.5" fill="url(#grad1)" />
-            <rect x="38" y="16" width="6" height="28" rx="1.5" fill="url(#grad1)" />
-            <path d="M16 34 C24 18, 40 18, 48 26" stroke="#22d3ee" strokeWidth="2.5" strokeLinecap="round" fill="none" />
-          </svg>
-
-          <h1 style={{ color: '#22d3ee', margin: 0, fontSize: 24, fontWeight: 800 }}>
-            FinanceFlow
-          </h1>
+        <div 
+          onClick={() => navigate('/')}
+          style={{ cursor: 'pointer' }}
+        >
+          <Logo size={isMobile ? 'small' : 'medium'} variant={isMobile ? 'icon-only' : 'default'} />
         </div>
 
         {isMobile && (
           <button
             onClick={() => setMenuOpen(v => !v)}
-            style={{ background: '#0b3a33', border: '1px solid rgba(255,255,255,0.08)', color: '#e8fff6', borderRadius: 8, padding: '8px 10px', cursor: 'pointer' }}
+            style={{ 
+              background: '#0b3a33', 
+              border: '1px solid rgba(255,255,255,0.08)', 
+              color: '#e8fff6', 
+              borderRadius: 8, 
+              padding: '10px 12px', 
+              cursor: 'pointer',
+              fontSize: 18,
+              minWidth: 44,
+              minHeight: 44,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
           >
-            ☰
+            {menuOpen ? '✕' : '☰'}
           </button>
         )}
+      </div>
 
-        <nav style={{ display: isMobile ? (menuOpen ? 'flex' : 'none') : 'flex', gap: isMobile ? 8 : 16, flexDirection: isMobile ? 'column' : 'row' }}>
+      {isMobile && menuOpen && (
+        <div style={{
+          position: 'absolute',
+          top: '100%',
+          left: 0,
+          right: 0,
+          background: 'rgba(20, 44, 40, 0.98)',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+          padding: '16px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 12,
+          backdropFilter: 'blur(10px)'
+        }}>
           {navLinks.map(link => (
             <button
               key={link.path}
-              onClick={() => navigate(link.path)}
+              onClick={() => {
+                navigate(link.path)
+                setMenuOpen(false)
+              }}
               style={{
-                background: 'none',
-                border: 'none',
-                color: isActive(link.path) ? '#22d3ee' : '#a7f3d0',
+                background: isActive(link.path) ? 'rgba(16, 185, 129, 0.15)' : 'none',
+                border: isActive(link.path) ? '1px solid rgba(16, 185, 129, 0.4)' : '1px solid rgba(255, 255, 255, 0.08)',
+                color: isActive(link.path) ? '#22d3ee' : '#e8fff6',
                 cursor: 'pointer',
-                fontSize: 14,
+                fontSize: 15,
                 fontWeight: 600,
-                padding: '8px 0',
-                borderBottom: isActive(link.path) ? '2px solid #22d3ee' : 'none',
-                transition: 'all 0.3s ease'
+                padding: '12px 16px',
+                borderRadius: 8,
+                textAlign: 'left',
+                minHeight: 44
               }}
             >
               {link.label}
             </button>
           ))}
-        </nav>
-      </div>
-
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16, justifyContent: 'flex-end' }}>
-        <span style={{ color: '#a7f3d0', fontSize: 14 }}>
-          {user.username}
-        </span>
-        <button
-          onClick={handleLogout}
-          style={{
-            padding: '8px 16px',
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: 12,
+            padding: '12px 16px',
+            background: 'rgba(20, 44, 40, 0.5)',
             borderRadius: 8,
-            background: 'rgba(220, 38, 38, 0.2)',
-            color: '#fecaca',
-            border: 'none',
-            cursor: 'pointer',
-            fontSize: 14,
-            fontWeight: 600
-          }}
-        >
-          Logout
-        </button>
-      </div>
+            border: '1px solid rgba(255, 255, 255, 0.08)'
+          }}>
+            <span style={{ color: '#a7f3d0', fontSize: 14, flex: 1 }}>
+              {user.username}
+            </span>
+            <button
+              onClick={() => {
+                handleLogout()
+                setMenuOpen(false)
+              }}
+              style={{
+                padding: '8px 16px',
+                borderRadius: 8,
+                background: 'rgba(220, 38, 38, 0.2)',
+                color: '#fecaca',
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: 14,
+                fontWeight: 600,
+                minHeight: 36
+              }}
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+      )}
+
+      {!isMobile && (
+        <>
+          <nav style={{ 
+            display: 'flex', 
+            gap: 20, 
+            justifyContent: 'center',
+            gridColumn: 1
+          }}>
+            {navLinks.map(link => (
+              <button
+                key={link.path}
+                onClick={() => navigate(link.path)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: isActive(link.path) ? '#22d3ee' : '#a7f3d0',
+                  cursor: 'pointer',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  padding: '8px 0',
+                  borderBottom: isActive(link.path) ? '2px solid #22d3ee' : 'none',
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                {link.label}
+              </button>
+            ))}
+          </nav>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16, justifyContent: 'flex-end' }}>
+            <span style={{ color: '#a7f3d0', fontSize: 14 }}>
+              {user.username}
+            </span>
+            <button
+              onClick={handleLogout}
+              style={{
+                padding: '8px 16px',
+                borderRadius: 8,
+                background: 'rgba(220, 38, 38, 0.2)',
+                color: '#fecaca',
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: 14,
+                fontWeight: 600,
+                minHeight: 36
+              }}
+            >
+              Logout
+            </button>
+          </div>
+        </>
+      )}
     </header>
   )
 }

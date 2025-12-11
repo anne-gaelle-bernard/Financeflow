@@ -77,27 +77,27 @@ export default function Categories() {
   return (
     <div className="main-layout">
       <div className="content">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-          <h1 style={{ color: '#e8fff6', margin: 0 }}>Categories</h1>
+        <div className="page-header">
+          <h1>Categories</h1>
           <button className="btn btn-primary" onClick={() => setShowModal(true)}>
-            + New Category
+            + Nouvelle catégorie
           </button>
         </div>
 
         {loading ? (
           <div style={{ color: '#a7f3d0' }}>Loading...</div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: 16 }}>
+          <div className="category-grid">
             {categories.map(cat => (
-              <div key={cat._id} className="table-container" style={{ marginBottom: 0 }}>
+              <div key={cat._id} className="category-card">
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12 }}>
                   <div style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: cat.color, marginRight: 12 }}></div>
                   <h3 style={{ color: '#e8fff6', margin: 0, flex: 1 }}>{cat.name}</h3>
                 </div>
                 <p style={{ color: '#a7f3d0', margin: '8px 0' }}>{cat.description}</p>
                 <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-                  <button className="btn btn-small" onClick={() => handleEdit(cat)}>Edit</button>
-                  <button className="btn btn-danger btn-small" onClick={() => handleDelete(cat._id)}>Delete</button>
+                  <button className="btn btn-small" onClick={() => handleEdit(cat)}>Modifier</button>
+                  <button className="btn btn-danger btn-small" onClick={() => handleDelete(cat._id)}>Supprimer</button>
                 </div>
               </div>
             ))}

@@ -86,11 +86,11 @@ export default function Home() {
   return (
     <div className="main-layout">
       <div className="content">
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+        <div className="home-header">
           <div className="circle-icon">👤</div>
           <div>
-            <div style={{ color: '#e8fff6', fontWeight: 800 }}>Bienvenue {user?.firstName || user?.username || 'Utilisateur'}</div>
-            <div style={{ color: '#a7f3d0', fontSize: 13 }}>Total Balance: ${stats.balance.toFixed(2)}</div>
+            <div className="home-welcome">Bienvenue {user?.firstName || user?.username || 'Utilisateur'}</div>
+            <div className="home-balance">Total Balance: ${stats.balance.toFixed(2)}</div>
           </div>
         </div>
 
@@ -101,19 +101,19 @@ export default function Home() {
             <div className="dashboard-cards">
               <div className="dashboard-card">
                 <div className="dashboard-card-title">Income</div>
-                <div className="dashboard-card-value" style={{ color: '#86efac' }}>${stats.income.toFixed(2)}</div>
+                <div className="dashboard-card-value text-success">${stats.income.toFixed(2)}</div>
               </div>
               <div className="dashboard-card">
                 <div className="dashboard-card-title">Expenses</div>
-                <div className="dashboard-card-value" style={{ color: '#fecaca' }}>${stats.expense.toFixed(2)}</div>
+                <div className="dashboard-card-value text-danger">${stats.expense.toFixed(2)}</div>
               </div>
               <div className="dashboard-card">
                 <div className="dashboard-card-title">Saving</div>
-                <div className="dashboard-card-value" style={{ color: '#22d3ee' }}>${Math.max(0, stats.balance).toFixed(2)}</div>
+                <div className="dashboard-card-value text-info">${Math.max(0, stats.balance).toFixed(2)}</div>
               </div>
             </div>
 
-            <div className="circle-actions" style={{ marginBottom: 24 }}>
+            <div className="circle-actions">
               <div className="circle-action">
                 <div className="circle-icon">＋</div>
                 <button className="btn" onClick={() => navigate('/transactions?new=1')}>Add New Transaction</button>

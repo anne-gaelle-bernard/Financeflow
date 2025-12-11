@@ -58,10 +58,12 @@ export default function Settings() {
   return (
     <div className="main-layout">
       <div className="content">
-        <h1 style={{ color: '#e8fff6', marginBottom: 20 }}>Settings</h1>
+        <div className="page-header">
+          <h1>Paramètres</h1>
+        </div>
 
         <div className="table-container" style={{ maxWidth: 600 }}>
-          <h2 style={{ color: '#a7f3d0', marginTop: 0 }}>Update Profile</h2>
+          <h2 style={{ color: '#a7f3d0', marginTop: 0, fontSize: 18 }}>Mettre à jour le profil</h2>
           
           {message && (
             <div style={{
