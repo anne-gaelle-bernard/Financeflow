@@ -89,7 +89,7 @@ export default function Signup() {
           {error && <div style={{ color: '#fecaca', background: 'rgba(120,0,0,0.2)', borderRadius: 8, padding: '8px 10px', fontSize: 14 }}>{error}</div>}
         </form>
       </div>
-      <div style={{ position: 'fixed', bottom: 20, color: '#7dd3fc', fontSize: 12 }}>© 2024 FinanceFlow • Sécurisé et fiable</div>
+      <div style={{ position: 'fixed', bottom: 20, color: '#7dd3fc', fontSize: 12 }}>© 2024 FinanceFlow • </div>
     </div>
   )
 }

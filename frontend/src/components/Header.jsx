@@ -46,9 +46,31 @@ export default function Header() {
       zIndex: 100
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 16, justifyContent: 'space-between' }}>
-        <h1 style={{ color: '#22d3ee', margin: 0, fontSize: 24, fontWeight: 800 }}>
-          FinanceFlow
-        </h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <svg
+            className="w-8 h-8"
+            viewBox="0 0 64 64"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <defs>
+              <linearGradient id="grad1" x1="0" x2="1">
+                <stop offset="0%" stopColor="#22d3ee" />
+                <stop offset="100%" stopColor="#06b6d4" />
+              </linearGradient>
+            </defs>
+
+            <circle cx="32" cy="32" r="28" fill="url(#grad1)" opacity="0.15" />
+            <rect x="18" y="30" width="6" height="14" rx="1.5" fill="url(#grad1)" />
+            <rect x="28" y="22" width="6" height="22" rx="1.5" fill="url(#grad1)" />
+            <rect x="38" y="16" width="6" height="28" rx="1.5" fill="url(#grad1)" />
+            <path d="M16 34 C24 18, 40 18, 48 26" stroke="#22d3ee" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+          </svg>
+
+          <h1 style={{ color: '#22d3ee', margin: 0, fontSize: 24, fontWeight: 800 }}>
+            FinanceFlow
+          </h1>
+        </div>
+
         {isMobile && (
           <button
             onClick={() => setMenuOpen(v => !v)}
@@ -57,6 +79,7 @@ export default function Header() {
             ☰
           </button>
         )}
+
         <nav style={{ display: isMobile ? (menuOpen ? 'flex' : 'none') : 'flex', gap: isMobile ? 8 : 16, flexDirection: isMobile ? 'column' : 'row' }}>
           {navLinks.map(link => (
             <button
