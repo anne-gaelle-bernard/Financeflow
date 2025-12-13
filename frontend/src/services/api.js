@@ -192,4 +192,30 @@ export async function deleteReport(id) {
   return res.data
 }
 
+// ============ SAVINGS ENDPOINTS ============
+export async function getSavingsByUser(userId) {
+  const res = await api.get(`/savings/user/${userId}`)
+  return res.data
+}
+
+export async function getTotalSavings(userId) {
+  const res = await api.get(`/savings/user/${userId}/total`)
+  return res.data
+}
+
+export async function createSavings(payload) {
+  const res = await api.post('/savings', payload)
+  return res.data
+}
+
+export async function updateSavings(id, payload) {
+  const res = await api.put(`/savings/${id}`, payload)
+  return res.data
+}
+
+export async function deleteSavings(id) {
+  const res = await api.delete(`/savings/${id}`)
+  return res.data
+}
+
 export default api

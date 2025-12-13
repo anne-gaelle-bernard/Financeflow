@@ -23,6 +23,7 @@ const transactionRoute = require('./Route/TransactionRoute');
 const categoryRoute = require('./Route/CategoryRoute');
 const budgetRoute = require('./Route/BudgetRoute');
 const reportRoute = require('./Route/ReportRoute');
+const savingsRoute = require('./Route/SavingsRoute');
 
 app.get('/', (req, res) => {
     res.status(200).send('Financeflow Backend is running');
@@ -34,6 +35,7 @@ app.use('/api/transactions', transactionRoute);
 app.use('/api/categories', categoryRoute);
 app.use('/api/budgets', budgetRoute);
 app.use('/api/reports', reportRoute);
+app.use('/api/savings', savingsRoute);
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
