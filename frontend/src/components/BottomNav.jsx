@@ -5,11 +5,11 @@ export default function BottomNav() {
   const navigate = useNavigate()
   const location = useLocation()
   const items = [
-    { label: 'Dashboard', path: '/' },
-    { label: 'Transactions', path: '/transactions' },
-    { label: 'Budgets', path: '/budgets' },
-    { label: 'Reports', path: '/reports' },
-    { label: 'Settings', path: '/settings' }
+    { label: 'Accueil', path: '/', icon: '🏠' },
+    { label: 'Transactions', path: '/transactions', icon: '💳' },
+    { label: 'Budgets', path: '/budgets', icon: '🎯' },
+    { label: 'Rapports', path: '/reports', icon: '📊' },
+    { label: 'Paramètres', path: '/settings', icon: '⚙️' }
   ]
 
   return (
@@ -20,7 +20,7 @@ export default function BottomNav() {
           className={`bottom-nav-item ${location.pathname === item.path ? 'active' : ''}`}
           onClick={() => navigate(item.path)}
         >
-          <span className="bottom-nav-icon">⬢</span>
+          <span className="bottom-nav-icon">{item.icon}</span>
           <span className="bottom-nav-label">{item.label}</span>
         </button>
       ))}

@@ -22,6 +22,15 @@ export default function Home() {
   const [savings, setSavings] = useState([])
   const [loading, setLoading] = useState(false)
   const [showSavingsModal, setShowSavingsModal] = useState(false)
+  const [showCalculator, setShowCalculator] = useState(false)
+  const [showNotes, setShowNotes] = useState(false)
+  const [calcDisplay, setCalcDisplay] = useState('0')
+  const [calcInput, setCalcInput] = useState('')
+  const [notes, setNotes] = useState(() => {
+    const saved = localStorage.getItem('ff_notes')
+    return saved ? JSON.parse(saved) : []
+  })
+  const [noteText, setNoteText] = useState('')
   const [savingsForm, setSavingsForm] = useState({
     amount: '',
     description: '',
@@ -77,12 +86,16 @@ export default function Home() {
           getReportsByUser(user.userId).catch(() => []),
           getTransactionsByUser(user.userId).catch(() => []),
           getBudgetsByUser(user.userId).catch(() => []),
-          getSavingsByUser(user.userId).catch(() => [])
+          getSavingsByUser(user.userId).catch(err => {
+            console.log('Error loading savings:', err)
+            return []
+          })
         ])
         setReports(Array.isArray(repRes) ? repRes : [])
         setTransactions(Array.isArray(txRes) ? txRes : [])
         setBudgets(Array.isArray(budRes) ? budRes : [])
         setSavings(Array.isArray(savRes) ? savRes : [])
+        console.log('Savings loaded:', savRes)
       } catch (err) {
         console.error('Error loading home data:', err)
       }
@@ -94,20 +107,23 @@ export default function Home() {
   const handleSavingsSubmit = async (e) => {
     e.preventDefault()
     try {
-      await createSavings({
+      const result = await createSavings({
         userId: user.userId,
         amount: Number(savingsForm.amount),
         description: savingsForm.description,
         goal: savingsForm.goal,
         date: new Date()
       })
+      console.log('Savings created:', result)
       setSavingsForm({ amount: '', description: '', goal: '' })
       setShowSavingsModal(false)
       // Reload savings
       const savRes = await getSavingsByUser(user.userId)
+      console.log('Reloaded savings:', savRes)
       setSavings(Array.isArray(savRes) ? savRes : [])
     } catch (err) {
       console.error('Error saving:', err)
+      alert('Erreur lors de l\'enregistrement: ' + (err.response?.data?.error || err.message))
     }
   }
 
@@ -115,10 +131,13 @@ export default function Home() {
     if (window.confirm('Supprimer cette épargne ?')) {
       try {
         await deleteSavings(id)
+        console.log('Savings deleted:', id)
         const savRes = await getSavingsByUser(user.userId)
+        console.log('Reloaded savings after delete:', savRes)
         setSavings(Array.isArray(savRes) ? savRes : [])
       } catch (err) {
         console.error('Error deleting savings:', err)
+        alert('Erreur lors de la suppression: ' + (err.response?.data?.error || err.message))
       }
     }
   }
@@ -134,34 +153,34 @@ export default function Home() {
           <div className="circle-icon">👤</div>
           <div>
             <div className="home-welcome">Bienvenue {user?.firstName || user?.username || 'Utilisateur'}</div>
-            <div className="home-balance">Total Balance: ${stats.balance.toFixed(2)}</div>
+            <div className="home-balance">Total Balance: €{stats.balance.toFixed(2)}</div>
           </div>
         </div>
 
         {loading ? (
-          <div style={{ color: '#a7f3d0' }}>Loading...</div>
+          <div className="text-emerald-300">Loading...</div>
         ) : (
           <>
             <div className="dashboard-cards">
               <div className="dashboard-card">
                 <div className="dashboard-card-title">Revenus</div>
-                <div className="dashboard-card-value text-success">${stats.income.toFixed(2)}</div>
+                <div className="dashboard-card-value text-success">€{stats.income.toFixed(2)}</div>
               </div>
               <div className="dashboard-card">
                 <div className="dashboard-card-title">Dépenses</div>
-                <div className="dashboard-card-value text-danger">${stats.expense.toFixed(2)}</div>
+                <div className="dashboard-card-value text-danger">€{stats.expense.toFixed(2)}</div>
               </div>
               <div className="dashboard-card">
                 <div className="dashboard-card-title">Solde</div>
-                <div className="dashboard-card-value text-info">${stats.balance.toFixed(2)}</div>
+                <div className="dashboard-card-value text-info">€{stats.balance.toFixed(2)}</div>
               </div>
               <div className="dashboard-card" style={{ background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
                 <div className="dashboard-card-title">💰 Épargne Total</div>
-                <div className="dashboard-card-value" style={{ color: '#10b981' }}>${stats.savings.toFixed(2)}</div>
+                <div className="dashboard-card-value" style={{ color: '#10b981' }}>€{stats.savings.toFixed(2)}</div>
               </div>
             </div>
 
-            <div className="circle-actions">
+            <div className="circle-actions" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12 }}>
               <div className="circle-action" onClick={() => navigate('/transactions?new=1')}>
                 <div className="circle-icon">＋</div>
                 <div style={{ flex: 1 }}>
@@ -176,54 +195,196 @@ export default function Home() {
                   <div style={{ fontSize: 12, color: '#a7f3d0' }}>Combien avez-vous économisé ?</div>
                 </div>
               </div>
-            </div>
-
-            {/* Savings List */}
-            {savings.length > 0 && (
-              <div className="table-container" style={{ marginTop: 20 }}>
-                <h3 style={{ color: '#e8fff6', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span>💰</span> Historique d'épargne
-                </h3>
-                <div style={{ display: 'grid', gap: 10 }}>
-                  {savings.slice(0, 5).map(saving => (
-                    <div key={saving._id} style={{
-                      background: 'rgba(16, 185, 129, 0.08)',
-                      border: '1px solid rgba(16, 185, 129, 0.2)',
-                      borderRadius: 10,
-                      padding: 12,
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center'
-                    }}>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: 18, fontWeight: 700, color: '#10b981' }}>
-                          ${saving.amount.toFixed(2)}
-                        </div>
-                        <div style={{ fontSize: 13, color: '#a7f3d0', marginTop: 2 }}>
-                          {saving.description || 'Épargne'}
-                        </div>
-                        {saving.goal && (
-                          <div style={{ fontSize: 11, color: '#7dd3fc', marginTop: 2 }}>
-                            🎯 {saving.goal}
-                          </div>
-                        )}
-                        <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>
-                          {new Date(saving.date).toLocaleDateString('fr-FR')}
-                        </div>
-                      </div>
-                      <button 
-                        className="btn btn-danger btn-small"
-                        onClick={() => handleDeleteSavings(saving._id)}
-                      >
-                        Supprimer
-                      </button>
-                    </div>
-                  ))}
+              <div className="circle-action" onClick={() => setShowCalculator(true)} style={{ cursor: 'pointer' }}>
+                <div className="circle-icon" style={{ background: 'linear-gradient(135deg, #8b5cf6, #ec4899)', color: '#fff' }}>🔢</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 600, color: '#e8fff6' }}>Calculatrice</div>
+                  <div style={{ fontSize: 12, color: '#a7f3d0' }}>Calculer vos finances</div>
                 </div>
               </div>
-            )}
+              <div className="circle-action" onClick={() => setShowNotes(true)} style={{ cursor: 'pointer' }}>
+                <div className="circle-icon" style={{ background: 'linear-gradient(135deg, #f59e0b, #f97316)', color: '#fff' }}>📝</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 600, color: '#e8fff6' }}>Notes rapides</div>
+                  <div style={{ fontSize: 12, color: '#a7f3d0' }}>Gérer vos notes</div>
+                </div>
+              </div>
+            </div>
           </>
         )}
+
+        {/* Calculator Modal */}
+        <div className={`modal ${showCalculator ? 'show' : ''}`} onClick={() => setShowCalculator(false)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: 400 }}>
+            <div className="modal-header">
+              <h2>🔢 Calculatrice</h2>
+              <button className="close-btn" onClick={() => setShowCalculator(false)}>×</button>
+            </div>
+            <div style={{ padding: '0 20px 20px' }}>
+              <div style={{ 
+                background: '#0a3a33', 
+                padding: 20, 
+                borderRadius: 12, 
+                marginBottom: 16,
+                textAlign: 'right',
+                fontSize: 32,
+                fontWeight: 700,
+                color: '#22d3ee',
+                minHeight: 60,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'flex-end',
+                border: '2px solid rgba(34, 211, 238, 0.3)'
+              }}>
+                {calcDisplay}
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
+                {['7','8','9','/','4','5','6','*','1','2','3','-','0','.','=','+'].map(btn => (
+                  <button
+                    key={btn}
+                    onClick={() => {
+                      if (btn === '=') {
+                        try {
+                          const result = eval(calcInput || '0')
+                          setCalcDisplay(result.toString())
+                          setCalcInput(result.toString())
+                        } catch {
+                          setCalcDisplay('Erreur')
+                        }
+                      } else {
+                        const newInput = calcInput === '0' ? btn : calcInput + btn
+                        setCalcInput(newInput)
+                        setCalcDisplay(newInput)
+                      }
+                    }}
+                    style={{
+                      padding: 20,
+                      fontSize: 20,
+                      fontWeight: 600,
+                      borderRadius: 12,
+                      border: 'none',
+                      background: btn === '=' ? 'linear-gradient(135deg, #22d3ee, #10b981)' : 'rgba(34, 211, 238, 0.1)',
+                      color: '#e8fff6',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    {btn}
+                  </button>
+                ))}
+                <button
+                  onClick={() => {
+                    setCalcInput('0')
+                    setCalcDisplay('0')
+                  }}
+                  style={{
+                    padding: 20,
+                    fontSize: 16,
+                    fontWeight: 600,
+                    borderRadius: 12,
+                    border: 'none',
+                    background: 'rgba(239, 68, 68, 0.2)',
+                    color: '#fecaca',
+                    cursor: 'pointer',
+                    gridColumn: 'span 4'
+                  }}
+                >
+                  Effacer
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Notes Modal */}
+        <div className={`modal ${showNotes ? 'show' : ''}`} onClick={() => setShowNotes(false)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: 600 }}>
+            <div className="modal-header">
+              <h2>📝 Notes rapides</h2>
+              <button className="close-btn" onClick={() => setShowNotes(false)}>×</button>
+            </div>
+            <div style={{ padding: '0 20px 20px' }}>
+              <div style={{ marginBottom: 20 }}>
+                <textarea
+                  value={noteText}
+                  onChange={(e) => setNoteText(e.target.value)}
+                  placeholder="Écrivez votre note ici..."
+                  style={{
+                    width: '100%',
+                    minHeight: 100,
+                    padding: 12,
+                    borderRadius: 10,
+                    background: '#0a3a33',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    color: '#e8fff6',
+                    fontSize: 14,
+                    fontFamily: 'inherit',
+                    resize: 'vertical'
+                  }}
+                />
+                <button
+                  onClick={() => {
+                    if (noteText.trim()) {
+                      const newNotes = [...notes, { id: Date.now(), text: noteText, date: new Date().toISOString() }]
+                      setNotes(newNotes)
+                      localStorage.setItem('ff_notes', JSON.stringify(newNotes))
+                      setNoteText('')
+                    }
+                  }}
+                  className="btn btn-primary"
+                  style={{ width: '100%', marginTop: 10 }}
+                >
+                  Ajouter la note
+                </button>
+              </div>
+              <div style={{ maxHeight: 300, overflowY: 'auto' }}>
+                {notes.length === 0 ? (
+                  <div style={{ textAlign: 'center', color: '#a7f3d0', padding: 20 }}>
+                    Aucune note pour le moment
+                  </div>
+                ) : (
+                  notes.slice().reverse().map(note => (
+                    <div
+                      key={note.id}
+                      style={{
+                        background: 'rgba(34, 211, 238, 0.1)',
+                        padding: 12,
+                        borderRadius: 10,
+                        marginBottom: 10,
+                        border: '1px solid rgba(34, 211, 238, 0.2)'
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', gap: 10 }}>
+                        <div style={{ flex: 1, color: '#e8fff6', fontSize: 14 }}>{note.text}</div>
+                        <button
+                          onClick={() => {
+                            const newNotes = notes.filter(n => n.id !== note.id)
+                            setNotes(newNotes)
+                            localStorage.setItem('ff_notes', JSON.stringify(newNotes))
+                          }}
+                          style={{
+                            background: 'rgba(239, 68, 68, 0.2)',
+                            border: 'none',
+                            color: '#fecaca',
+                            padding: '4px 8px',
+                            borderRadius: 6,
+                            cursor: 'pointer',
+                            fontSize: 12
+                          }}
+                        >
+                          ×
+                        </button>
+                      </div>
+                      <div style={{ fontSize: 11, color: '#a7f3d0', marginTop: 6 }}>
+                        {new Date(note.date).toLocaleString('fr-FR')}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Savings Modal */}
         <div className={`modal ${showSavingsModal ? 'show' : ''}`} onClick={() => setShowSavingsModal(false)}>
@@ -234,7 +395,7 @@ export default function Home() {
             </div>
             <form onSubmit={handleSavingsSubmit}>
               <div className="form-group">
-                <label>Montant épargné ($)</label>
+                <label>Montant épargné (€)</label>
                 <input
                   type="number"
                   step="0.01"

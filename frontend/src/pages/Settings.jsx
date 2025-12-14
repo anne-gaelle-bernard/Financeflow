@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { updateUser, deleteUser, setAuthToken } from '../services/api'
 import { useNavigate } from 'react-router-dom'
+import BottomNav from '../components/BottomNav'
 import '../styles/main.css'
 
 export default function Settings() {
@@ -29,11 +30,11 @@ export default function Settings() {
       if (formData.password) payload.password = formData.password
 
       const res = await updateUser(user.userId, payload)
-      setMessage('Profile updated successfully!')
+      setMessage('Profil mis à jour avec succès !')
       setFormData({ username: '', email: '', password: '' })
       setTimeout(() => setMessage(''), 3000)
     } catch (err) {
-      setMessage('Error updating profile')
+      setMessage('Erreur lors de la mise à jour du profil')
     }
   }
 
@@ -45,12 +46,12 @@ export default function Settings() {
   }
 
   const handleDeleteAccount = () => {
-    if (window.confirm('Are you sure? This action cannot be undone.')) {
+    if (window.confirm('Êtes-vous sûr ? Cette action est irréversible.')) {
       try {
         deleteUser(user.userId)
         handleLogout()
       } catch (err) {
-        setMessage('Error deleting account')
+        setMessage('Erreur lors de la suppression du compte')
       }
     }
   }
@@ -59,7 +60,7 @@ export default function Settings() {
     <div className="main-layout">
       <div className="content">
         <div className="page-header">
-          <h1>Paramètres</h1>
+          <h1>⚙️ Paramètres</h1>
         </div>
 
         <div className="table-container" style={{ maxWidth: 600 }}>
@@ -79,45 +80,45 @@ export default function Settings() {
 
           <form onSubmit={handleUpdateProfile} style={{ display: 'grid', gap: 16 }}>
             <div className="form-group">
-              <label>Current Username</label>
+              <label>Nom d'utilisateur actuel</label>
               <input type="text" disabled value={user.username || ''} style={{ opacity: 0.6 }} />
             </div>
 
             <div className="form-group">
-              <label>New Username</label>
+              <label>Nouveau nom d'utilisateur</label>
               <input
                 type="text"
                 name="username"
                 value={formData.username}
                 onChange={handleChange}
-                placeholder="Leave empty to keep current"
+                placeholder="Laisser vide pour conserver"
               />
             </div>
 
             <div className="form-group">
-              <label>Current Email</label>
+              <label>Email actuel</label>
               <input type="text" disabled value={user.email || ''} style={{ opacity: 0.6 }} />
             </div>
 
             <div className="form-group">
-              <label>New Email</label>
+              <label>Nouvel email</label>
               <input
                 type="email"
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                placeholder="Leave empty to keep current"
+                placeholder="Laisser vide pour conserver"
               />
             </div>
 
             <div className="form-group">
-              <label>New Password</label>
+              <label>Nouveau mot de passe</label>
               <input
                 type={showPassword ? 'text' : 'password'}
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                placeholder="Leave empty to keep current"
+                placeholder="Laisser vide pour conserver"
               />
               <button
                 type="button"
@@ -132,36 +133,37 @@ export default function Settings() {
                 }}
                 onClick={() => setShowPassword(!showPassword)}
               >
-                {showPassword ? 'Hide' : 'Show'} password
+                {showPassword ? 'Masquer' : 'Afficher'} le mot de passe
               </button>
             </div>
 
             <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
-              Update Profile
+              Mettre à jour le profil
             </button>
           </form>
         </div>
 
         <div className="table-container" style={{ maxWidth: 600, marginTop: 20 }}>
-          <h2 style={{ color: '#a7f3d0', marginTop: 0 }}>Account Actions</h2>
+          <h2 style={{ color: '#a7f3d0', marginTop: 0 }}>Actions du compte</h2>
           <div style={{ display: 'grid', gap: 12 }}>
             <button
               className="btn btn-primary"
               style={{ width: '100%' }}
               onClick={handleLogout}
             >
-              Logout
+              Déconnexion
             </button>
             <button
               className="btn btn-danger"
               style={{ width: '100%' }}
               onClick={handleDeleteAccount}
             >
-              Delete Account
+              Supprimer le compte
             </button>
           </div>
         </div>
       </div>
+      <BottomNav />
     </div>
   )
 }

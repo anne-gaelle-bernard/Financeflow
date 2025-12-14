@@ -27,11 +27,11 @@ export default function Header() {
   }
 
   const navLinks = [
-    { path: '/', label: 'Dashboard' },
+    { path: '/', label: 'Tableau de bord' },
     { path: '/transactions', label: 'Transactions' },
     { path: '/budgets', label: 'Budgets' },
-    { path: '/reports', label: 'Reports' },
-    { path: '/settings', label: 'Settings' }
+    { path: '/reports', label: 'Rapports' },
+    { path: '/settings', label: 'Paramètres' }
   ]
 
   return (
@@ -40,115 +40,22 @@ export default function Header() {
       borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
       padding: isMobile ? '12px 16px' : '16px 24px',
       display: 'grid',
-      gridTemplateColumns: isMobile ? '1fr auto' : '1fr 1fr',
+      gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
       alignItems: 'center',
       position: 'sticky',
       top: 0,
       zIndex: 100,
-      backdropFilter: 'blur(10px)'
+      backdropFilter: 'blur(10px)',
+      width: '100%'
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16, justifyContent: 'space-between' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16, justifyContent: isMobile ? 'center' : 'flex-start' }}>
         <div 
           onClick={() => navigate('/')}
           style={{ cursor: 'pointer' }}
         >
           <Logo size={isMobile ? 'small' : 'medium'} variant={isMobile ? 'icon-only' : 'default'} />
         </div>
-
-        {isMobile && (
-          <button
-            onClick={() => setMenuOpen(v => !v)}
-            style={{ 
-              background: '#0b3a33', 
-              border: '1px solid rgba(255,255,255,0.08)', 
-              color: '#e8fff6', 
-              borderRadius: 8, 
-              padding: '10px 12px', 
-              cursor: 'pointer',
-              fontSize: 18,
-              minWidth: 44,
-              minHeight: 44,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-          >
-            {menuOpen ? '✕' : '☰'}
-          </button>
-        )}
       </div>
-
-      {isMobile && menuOpen && (
-        <div style={{
-          position: 'absolute',
-          top: '100%',
-          left: 0,
-          right: 0,
-          background: 'rgba(20, 44, 40, 0.98)',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-          padding: '16px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 12,
-          backdropFilter: 'blur(10px)'
-        }}>
-          {navLinks.map(link => (
-            <button
-              key={link.path}
-              onClick={() => {
-                navigate(link.path)
-                setMenuOpen(false)
-              }}
-              style={{
-                background: isActive(link.path) ? 'rgba(16, 185, 129, 0.15)' : 'none',
-                border: isActive(link.path) ? '1px solid rgba(16, 185, 129, 0.4)' : '1px solid rgba(255, 255, 255, 0.08)',
-                color: isActive(link.path) ? '#22d3ee' : '#e8fff6',
-                cursor: 'pointer',
-                fontSize: 15,
-                fontWeight: 600,
-                padding: '12px 16px',
-                borderRadius: 8,
-                textAlign: 'left',
-                minHeight: 44
-              }}
-            >
-              {link.label}
-            </button>
-          ))}
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: 12,
-            padding: '12px 16px',
-            background: 'rgba(20, 44, 40, 0.5)',
-            borderRadius: 8,
-            border: '1px solid rgba(255, 255, 255, 0.08)'
-          }}>
-            <span style={{ color: '#a7f3d0', fontSize: 14, flex: 1 }}>
-              {user.username}
-            </span>
-            <button
-              onClick={() => {
-                handleLogout()
-                setMenuOpen(false)
-              }}
-              style={{
-                padding: '8px 16px',
-                borderRadius: 8,
-                background: 'rgba(220, 38, 38, 0.2)',
-                color: '#fecaca',
-                border: 'none',
-                cursor: 'pointer',
-                fontSize: 14,
-                fontWeight: 600,
-                minHeight: 36
-              }}
-            >
-              Logout
-            </button>
-          </div>
-        </div>
-      )}
 
       {!isMobile && (
         <>

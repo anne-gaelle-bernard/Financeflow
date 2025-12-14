@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { getReportsByUser, createReport, updateReport, deleteReport, getTransactionsByUser } from '../services/api'
+import BottomNav from '../components/BottomNav'
 import '../styles/main.css'
 import {
   Chart as ChartJS,
@@ -37,7 +38,7 @@ export default function Reports() {
 
   const user = JSON.parse(localStorage.getItem('ff_user') || '{}')
   const userId = user?._id || user?.userId || null
-  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+  const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre']
 
   useEffect(() => {
     loadReports()
@@ -144,26 +145,26 @@ export default function Reports() {
     <div className="main-layout">
       <div className="content">
         <div className="page-header">
-          <h1>Rapports</h1>
+          <h1>📊 Rapports</h1>
           <button className="btn btn-primary" onClick={() => setShowModal(true)}>
             + Nouveau rapport
           </button>
         </div>
 
         {loading ? (
-          <div style={{ color: '#a7f3d0' }}>Loading...</div>
+          <div className="text-emerald-300">Loading...</div>
         ) : (
           <>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
-            <button className="btn" onClick={exportCsv} style={{ width: '100%', maxWidth: '200px' }}>
-              📊 Exporter CSV
+          <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
+            <button className="btn" style={{ background: 'rgba(16, 185, 129, 0.2)', color: '#10b981', border: '1px solid rgba(16, 185, 129, 0.3)' }} onClick={exportCsv}>
+              📥 Exporter CSV
             </button>
           </div>
-          {/* Charts */}
+
           <div className="charts-grid">
             <div className="chart-card">
               <h3>Revenus vs Dépenses</h3>
-              <Bar
+                <Bar
                 data={{
                   labels: reports.map(r => `${r.month} ${r.year}`),
                   datasets: [
@@ -187,6 +188,7 @@ export default function Reports() {
               />
             </div>
           </div>
+
           <div className="table-container">
             <table>
               <thead>
@@ -204,10 +206,10 @@ export default function Reports() {
                   <tr key={report._id}>
                     <td>{report.month}</td>
                     <td>{report.year}</td>
-                    <td style={{ color: '#86efac' }}>${report.totalIncome.toFixed(2)}</td>
-                    <td style={{ color: '#fecaca' }}>${report.totalExpense.toFixed(2)}</td>
+                    <td style={{ color: '#86efac' }}>€{report.totalIncome.toFixed(2)}</td>
+                    <td style={{ color: '#fecaca' }}>€{report.totalExpense.toFixed(2)}</td>
                     <td style={{ color: report.balance >= 0 ? '#86efac' : '#fecaca' }}>
-                      ${report.balance.toFixed(2)}
+                      €{report.balance.toFixed(2)}
                     </td>
                     <td>
                       <div className="action-buttons">
@@ -236,36 +238,37 @@ export default function Reports() {
             </div>
             <form onSubmit={handleSubmit}>
               <div className="form-group">
-                <label>Month</label>
+                <label>Mois</label>
                 <select name="month" value={formData.month} onChange={handleChange} required>
-                  <option value="">Select Month</option>
+                  <option value="">Sélectionner un mois</option>
                   {months.map(month => (
                     <option key={month} value={month}>{month}</option>
                   ))}
                 </select>
               </div>
               <div className="form-group">
-                <label>Year</label>
+                <label>Année</label>
                 <input type="number" name="year" value={formData.year} onChange={handleChange} required />
               </div>
               <div className="form-group">
-                <label>Total Income</label>
+                <label>Total Revenus</label>
                 <input type="number" name="totalIncome" value={formData.totalIncome} onChange={handleChange} required step="0.01" />
               </div>
               <div className="form-group">
-                <label>Total Expense</label>
+                <label>Total Dépenses</label>
                 <input type="number" name="totalExpense" value={formData.totalExpense} onChange={handleChange} required step="0.01" />
               </div>
               <button type="button" className="btn" onClick={handleGenerateFromTransactions} style={{ width: '100%', marginBottom: 8 }}>
-                Generate from Transactions
+                Générer depuis les transactions
               </button>
               <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
-                Save
+                Enregistrer
               </button>
             </form>
           </div>
         </div>
       </div>
+      <BottomNav />
     </div>
   )
 }

@@ -3,6 +3,7 @@ import { getTransactionsByUser, createTransaction, updateTransaction, deleteTran
 import CategoryList from '../components/CategoryList'
 import CategorySelect from '../components/CategorySelect'
 import InlineCategoryCreator from '../components/InlineCategoryCreator'
+import BottomNav from '../components/BottomNav'
 import '../styles/main.css'
 
 export default function Transactions() {
@@ -168,22 +169,24 @@ export default function Transactions() {
     <div className="main-layout">
       <div className="content">
         <div className="page-header">
-          <h1>Transactions</h1>
+          <h1>💳 Transactions</h1>
           <button className="btn btn-primary" onClick={() => setShowModal(true)}>
             + Nouvelle transaction
           </button>
         </div>
 
         <CategoryList categories={categories} selectedId={activeCategory} onSelect={setActiveCategory} />
-        <div className="category-list" style={{ marginTop: 8 }}>
+        
+        <div className="category-list" style={{ marginBottom: '2rem' }}>
           <button className={`category-item ${activeType === 'all' ? 'active' : ''}`} onClick={() => setActiveType('all')}>Tout</button>
           <button className={`category-item ${activeType === 'income' ? 'active' : ''}`} onClick={() => setActiveType('income')}>Revenus</button>
           <button className={`category-item ${activeType === 'expense' ? 'active' : ''}`} onClick={() => setActiveType('expense')}>Dépenses</button>
         </div>
+
         <div className="dashboard-cards">
           <div className="dashboard-card">
             <div className="dashboard-card-title">Revenus</div>
-            <div className="dashboard-card-value" style={{ color: '#86efac' }}>${transactions
+            <div className="dashboard-card-value" style={{ color: '#86efac' }}>€{transactions
               .filter(tx => {
                 const byCat = !activeCategory || (typeof tx.categoryId === 'object' ? tx.categoryId?._id : tx.categoryId) === activeCategory
                 const byType = activeType === 'all' || tx.type === activeType
@@ -195,7 +198,7 @@ export default function Transactions() {
           </div>
           <div className="dashboard-card">
             <div className="dashboard-card-title">Dépenses</div>
-            <div className="dashboard-card-value" style={{ color: '#fecaca' }}>${transactions
+            <div className="dashboard-card-value" style={{ color: '#fecaca' }}>€{transactions
               .filter(tx => {
                 const byCat = !activeCategory || (typeof tx.categoryId === 'object' ? tx.categoryId?._id : tx.categoryId) === activeCategory
                 const byType = activeType === 'all' || tx.type === activeType
@@ -207,7 +210,7 @@ export default function Transactions() {
           </div>
           <div className="dashboard-card">
             <div className="dashboard-card-title">Net</div>
-            <div className="dashboard-card-value">${(() => {
+            <div className="dashboard-card-value">€{(() => {
               const list = transactions.filter(tx => {
                 const byCat = !activeCategory || (typeof tx.categoryId === 'object' ? tx.categoryId?._id : tx.categoryId) === activeCategory
                 const byType = activeType === 'all' || tx.type === activeType
@@ -219,10 +222,11 @@ export default function Transactions() {
             })()}</div>
           </div>
         </div>
-        {loading ? (
-          <div style={{ color: '#a7f3d0' }}>Loading...</div>
-        ) : (
-          <div className="table-container">
+
+        <div className="table-container">
+          {loading ? (
+            <div style={{ color: '#a7f3d0' }}>Loading...</div>
+          ) : (
             <table>
               <thead>
                 <tr>
@@ -248,7 +252,7 @@ export default function Transactions() {
                     <td style={{ color: tx.type === 'income' ? '#86efac' : '#fecaca' }}>
                       {tx.type}
                     </td>
-                    <td>${tx.amount.toFixed(2)}</td>
+                    <td>€{tx.amount.toFixed(2)}</td>
                     <td className="text-truncate">{tx.description}</td>
                     <td>
                       <div className="action-buttons">
@@ -264,8 +268,8 @@ export default function Transactions() {
                 ))}
               </tbody>
             </table>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Modal */}
         <div className={`modal ${showModal ? 'show' : ''}`} onClick={() => setShowModal(false)}>
@@ -279,7 +283,7 @@ export default function Transactions() {
                 categories={categories}
                 value={formData.categoryId}
                 onChange={handleChange}
-                label="Category"
+                label="Catégorie"
               />
               {errors.categoryId && (
                 <div className="error-message" style={{ marginBottom: 8 }}>{errors.categoryId}</div>
@@ -293,7 +297,7 @@ export default function Transactions() {
               />
               {categories.length === 0 && user?.userId && (
                 <div style={{ margin: '8px 0 12px 0' }}>
-                  <button type="button" className="btn" onClick={ensureCategories}>Create default categories</button>
+                  <button type="button" className="btn" onClick={ensureCategories}>Créer les catégories par défaut</button>
                 </div>
               )}
               {errorMsg && (
@@ -304,15 +308,15 @@ export default function Transactions() {
               <div className="form-group">
                 <label>Type</label>
                 <select name="type" value={formData.type} onChange={handleChange}>
-                  <option value="expense">Expense</option>
-                  <option value="income">Income</option>
+                  <option value="expense">Dépense</option>
+                  <option value="income">Revenu</option>
                 </select>
               </div>
               {errors.type && (
                 <div className="error-message" style={{ marginBottom: 8 }}>{errors.type}</div>
               )}
               <div className="form-group">
-                <label>Amount</label>
+                <label>Montant</label>
                 <input type="number" name="amount" value={formData.amount} onChange={handleChange} required step="0.01" />
               </div>
               {errors.amount && (
@@ -335,12 +339,13 @@ export default function Transactions() {
               <button type="submit" className="btn btn-primary" style={{ width: '100%' }}
                 disabled={saving || !formData.categoryId || !formData.type || !formData.amount || Number(formData.amount) <= 0 || !formData.description || !formData.date}
               >
-                {saving ? 'Saving…' : 'Save'}
+                {saving ? 'Enregistrement…' : 'Enregistrer'}
               </button>
             </form>
           </div>
         </div>
       </div>
+      <BottomNav />
     </div>
   )
 }

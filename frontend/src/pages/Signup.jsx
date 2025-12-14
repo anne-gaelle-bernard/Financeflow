@@ -32,13 +32,10 @@ export default function Signup() {
     try {
       setLoading(true)
       const res = await registerUser({ firstName, lastName, email, password })
-      if (res?.success && res?.data?.token && res?.data?.user) {
-        const user = res.data.user
-        const token = res.data.token
-        localStorage.setItem('ff_user', JSON.stringify({ _id: user._id, userId: user._id, ...user }))
-        localStorage.setItem('ff_token', token)
-        setAuthToken(token)
-        navigate('/')
+      if (res?.success) {
+        // Inscription réussie - rediriger vers la page de connexion
+        alert('Inscription réussie ! Veuillez vous connecter.')
+        navigate('/login')
       } else {
         setError(res?.error || res?.message || 'Inscription échouée')
       }

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { getAllCategories, createCategory, updateCategory, deleteCategory } from '../services/api'
+import BottomNav from '../components/BottomNav'
 import '../styles/main.css'
 
 export default function Categories() {
@@ -64,7 +65,7 @@ export default function Categories() {
   }
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure?')) {
+    if (window.confirm('Êtes-vous sûr ?')) {
       try {
         await deleteCategory(id)
         loadCategories()
@@ -78,24 +79,24 @@ export default function Categories() {
     <div className="main-layout">
       <div className="content">
         <div className="page-header">
-          <h1>Categories</h1>
+          <h1>🏷️ Catégories</h1>
           <button className="btn btn-primary" onClick={() => setShowModal(true)}>
             + Nouvelle catégorie
           </button>
         </div>
 
         {loading ? (
-          <div style={{ color: '#a7f3d0' }}>Loading...</div>
+          <div>Chargement...</div>
         ) : (
           <div className="category-grid">
             {categories.map(cat => (
-              <div key={cat._id} className="category-card">
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12 }}>
-                  <div style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: cat.color, marginRight: 12 }}></div>
-                  <h3 style={{ color: '#e8fff6', margin: 0, flex: 1 }}>{cat.name}</h3>
+              <div key={cat._id} className="category-card" style={{ borderLeftColor: cat.color || '#10b981' }}>
+                <div className="category-card-header">
+                  <h3>{cat.name}</h3>
+                  <div className="category-color" style={{ backgroundColor: cat.color || '#10b981' }}></div>
                 </div>
-                <p style={{ color: '#a7f3d0', margin: '8px 0' }}>{cat.description}</p>
-                <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+                {cat.description && <p className="category-description">{cat.description}</p>}
+                <div className="action-buttons">
                   <button className="btn btn-small" onClick={() => handleEdit(cat)}>Modifier</button>
                   <button className="btn btn-danger btn-small" onClick={() => handleDelete(cat._id)}>Supprimer</button>
                 </div>
@@ -108,12 +109,12 @@ export default function Categories() {
         <div className={`modal ${showModal ? 'show' : ''}`} onClick={() => setShowModal(false)}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>{editingId ? 'Edit' : 'New'} Category</h2>
+              <h2>{editingId ? 'Modifier' : 'Nouvelle'} Catégorie</h2>
               <button className="close-btn" onClick={() => setShowModal(false)}>×</button>
             </div>
             <form onSubmit={handleSubmit}>
               <div className="form-group">
-                <label>Name</label>
+                <label>Nom</label>
                 <input type="text" name="name" value={formData.name} onChange={handleChange} required />
               </div>
               <div className="form-group">
@@ -121,16 +122,17 @@ export default function Categories() {
                 <input type="text" name="description" value={formData.description} onChange={handleChange} />
               </div>
               <div className="form-group">
-                <label>Color</label>
+                <label>Couleur</label>
                 <input type="color" name="color" value={formData.color} onChange={handleChange} />
               </div>
               <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
-                Save
+                Enregistrer
               </button>
             </form>
           </div>
         </div>
       </div>
+      <BottomNav />
     </div>
   )
 }

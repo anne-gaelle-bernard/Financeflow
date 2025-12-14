@@ -3,6 +3,7 @@ import { getBudgetsByUser, createBudget, updateBudget, deleteBudget, getCategori
 import CategoryList from '../components/CategoryList'
 import CategorySelect from '../components/CategorySelect'
 import InlineCategoryCreator from '../components/InlineCategoryCreator'
+import BottomNav from '../components/BottomNav'
 import '../styles/main.css'
 
 export default function Budgets() {
@@ -25,7 +26,7 @@ export default function Budgets() {
   })
 
   const user = JSON.parse(localStorage.getItem('ff_user') || '{}')
-  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+  const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre']
 
   useEffect(() => {
     loadData()
@@ -151,58 +152,54 @@ export default function Budgets() {
     <div className="main-layout">
       <div className="content">
         <div className="page-header">
-          <h1>Budgets</h1>
+          <h1>🎯 Budgets</h1>
           <button className="btn btn-primary" onClick={() => setShowModal(true)}>
             + Nouveau budget
           </button>
         </div>
 
         <CategoryList categories={categories} selectedId={activeCategory} onSelect={setActiveCategory} />
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', 
-          gap: 10, 
-          marginBottom: 16 
-        }}>
-          <div className="form-group" style={{ marginBottom: 0 }}>
+
+        <div className="filters-section" style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
+          <div className="form-group">
             <label>Filtrer par mois</label>
             <select value={filterMonth} onChange={(e) => setFilterMonth(e.target.value)}>
               <option value="">Tous</option>
               {months.map(m => <option key={m} value={m}>{m}</option>)}
             </select>
           </div>
-          <div className="form-group" style={{ marginBottom: 0 }}>
+          <div className="form-group">
             <label>Filtrer par année</label>
             <input type="number" value={filterYear} onChange={(e) => setFilterYear(e.target.value)} placeholder="Tous" />
           </div>
         </div>
-        <div className="dashboard-cards" style={{ gridTemplateColumns: '1fr' }}>
-          <div className="dashboard-card">
-            <div className="dashboard-card-title">Budget Total</div>
-            <div className="dashboard-card-value">${budgets
-              .filter(b => {
-                const byCat = !activeCategory || (typeof b.categoryId === 'object' ? b.categoryId?._id : b.categoryId) === activeCategory
-                const byMonth = !filterMonth || b.month === filterMonth
-                const byYear = !filterYear || String(b.year) === String(filterYear)
-                return byCat && byMonth && byYear
-              })
-              .reduce((s, b) => s + (b.amount || 0), 0)
-              .toFixed(2)}</div>
-          </div>
+
+        <div className="dashboard-card" style={{ marginBottom: '2rem' }}>
+          <div className="dashboard-card-title">Budget Total</div>
+          <div className="dashboard-card-value">€{budgets
+            .filter(b => {
+              const byCat = !activeCategory || (typeof b.categoryId === 'object' ? b.categoryId?._id : b.categoryId) === activeCategory
+              const byMonth = !filterMonth || b.month === filterMonth
+              const byYear = !filterYear || String(b.year) === String(filterYear)
+              return byCat && byMonth && byYear
+            })
+            .reduce((s, b) => s + (b.amount || 0), 0)
+            .toFixed(2)}</div>
         </div>
-        {loading ? (
-          <div style={{ color: '#a7f3d0' }}>Loading...</div>
-        ) : (
-          <div className="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>Catégorie</th>
-                  <th>Mois</th>
-                  <th>Année</th>
-                  <th>Montant</th>
-                  <th>Actions</th>
-                </tr>
+
+        <div className="table-container">
+          {loading ? (
+            <div>Loading...</div>
+          ) : (
+          <table>
+            <thead>
+              <tr>
+                <th>Catégorie</th>
+                <th>Mois</th>
+                <th>Année</th>
+                <th>Montant</th>
+                <th>Actions</th>
+              </tr>
               </thead>
               <tbody>
                 {budgets
@@ -217,7 +214,7 @@ export default function Budgets() {
                     <td>{budget.categoryId?.name || 'N/A'}</td>
                     <td>{budget.month}</td>
                     <td>{budget.year}</td>
-                    <td>${budget.amount.toFixed(2)}</td>
+                    <td>€{budget.amount.toFixed(2)}</td>
                     <td>
                       <div className="action-buttons">
                         <button className="btn btn-small" onClick={() => handleEdit(budget)}>
@@ -232,14 +229,14 @@ export default function Budgets() {
                 ))}
               </tbody>
             </table>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Modal */}
         <div className={`modal ${showModal ? 'show' : ''}`} onClick={() => setShowModal(false)}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>{editingId ? 'Edit' : 'New'} Budget</h2>
+              <h2>{editingId ? 'Modifier' : 'Nouveau'} Budget</h2>
               <button className="close-btn" onClick={() => setShowModal(false)}>×</button>
             </div>
             <form onSubmit={handleSubmit}>
@@ -247,7 +244,7 @@ export default function Budgets() {
                 categories={categories}
                 value={formData.categoryId}
                 onChange={handleChange}
-                label="Category"
+                label="Catégorie"
               />
               <InlineCategoryCreator
                 userId={user.userId}
@@ -261,7 +258,7 @@ export default function Budgets() {
               )}
               {categories.length === 0 && user?.userId && (
                 <div style={{ margin: '8px 0 12px 0' }}>
-                  <button type="button" className="btn" onClick={ensureCategories}>Create default categories</button>
+                  <button type="button" className="btn" onClick={ensureCategories}>Créer les catégories par défaut</button>
                 </div>
               )}
               {errorMsg && (
@@ -270,9 +267,9 @@ export default function Budgets() {
                 </div>
               )}
               <div className="form-group">
-                <label>Month</label>
+                <label>Mois</label>
                 <select name="month" value={formData.month} onChange={handleChange} required>
-                  <option value="">Select Month</option>
+                  <option value="">Sélectionner un mois</option>
                   {months.map(month => (
                     <option key={month} value={month}>{month}</option>
                   ))}
@@ -282,14 +279,14 @@ export default function Budgets() {
                 <div className="error-message" style={{ marginBottom: 8 }}>{errors.month}</div>
               )}
               <div className="form-group">
-                <label>Year</label>
+                <label>Année</label>
                 <input type="number" name="year" value={formData.year} onChange={handleChange} required />
               </div>
               {errors.year && (
                 <div className="error-message" style={{ marginBottom: 8 }}>{errors.year}</div>
               )}
               <div className="form-group">
-                <label>Amount</label>
+                <label>Montant</label>
                 <input type="number" name="amount" value={formData.amount} onChange={handleChange} required step="0.01" />
               </div>
               {errors.amount && (
@@ -298,12 +295,13 @@ export default function Budgets() {
               <button type="submit" className="btn btn-primary" style={{ width: '100%' }}
                 disabled={saving || !formData.categoryId || !formData.month || !formData.year || !formData.amount || Number(formData.amount) <= 0}
               >
-                {saving ? 'Saving…' : 'Save'}
+                {saving ? 'Enregistrement…' : 'Enregistrer'}
               </button>
             </form>
           </div>
         </div>
       </div>
+      <BottomNav />
     </div>
   )
 }
