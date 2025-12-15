@@ -20,7 +20,7 @@ export default function Logo({ size = 'medium', variant = 'default' }) {
       <div style={{
         width: style.width,
         height: style.width,
-OF        borderRadius: '22%',
+        borderRadius: '22%',
         background: 'linear-gradient(135deg, #2563eb 0%, #06b6d4 50%, #10b981 100%)',
         display: 'flex',
         alignItems: 'center',
